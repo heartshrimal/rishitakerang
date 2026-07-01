@@ -5,9 +5,11 @@ import { getAllProducts, getAllCategories } from "@/lib/store";
 
 export const dynamic = "force-dynamic";
 
-export default function Home() {
-  const products = getAllProducts();
-  const categories = getAllCategories();
+export default async function Home() {
+  const [products, categories] = await Promise.all([
+    getAllProducts(),
+    getAllCategories(),
+  ]);
 
   return (
     <>

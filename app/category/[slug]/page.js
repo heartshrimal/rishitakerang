@@ -6,7 +6,7 @@ export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }) {
   const { slug } = await params;
-  const categories = getAllCategories();
+  const categories = await getAllCategories();
   const category = categories.find((c) => c.slug === slug);
   if (!category) return {};
   return {
@@ -17,11 +17,13 @@ export async function generateMetadata({ params }) {
 
 export default async function CategoryPage({ params }) {
   const { slug } = await params;
-  const categories = getAllCategories();
+  const [categories, allProducts] = await Promise.all([
+    getAllCategories(),
+    getAllProducts(),
+  ]);
   const category = categories.find((c) => c.slug === slug);
   if (!category) notFound();
 
-  const allProducts = getAllProducts();
   const categoryProducts = allProducts.filter((p) => p.slug === slug);
 
   return (

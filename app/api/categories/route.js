@@ -2,7 +2,7 @@ import { verifyToken } from "@/lib/auth";
 import { getAllCategories, addCategory } from "@/lib/store";
 
 export async function GET() {
-  const categories = getAllCategories();
+  const categories = await getAllCategories();
   return Response.json(categories);
 }
 
@@ -19,14 +19,13 @@ export async function POST(request) {
 
   try {
     const body = await request.json();
-    const category = {
+    const category = await addCategory({
       name: body.name,
       slug: body.slug || body.name.toLowerCase().replace(/\s+/g, "-"),
       icon: body.icon || "📦",
       description: body.description || "",
-    };
+    });
 
-    addCategory(category);
     return Response.json(category, { status: 201 });
   } catch {
     return Response.json({ error: "Invalid request" }, { status: 400 });

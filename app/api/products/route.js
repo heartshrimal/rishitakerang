@@ -1,8 +1,8 @@
 import { verifyToken } from "@/lib/auth";
-import { getAllProducts, addProduct, getNextProductId } from "@/lib/store";
+import { getAllProducts, addProduct } from "@/lib/store";
 
 export async function GET() {
-  const products = getAllProducts();
+  const products = await getAllProducts();
   return Response.json(products);
 }
 
@@ -19,8 +19,7 @@ export async function POST(request) {
 
   try {
     const body = await request.json();
-    const product = {
-      id: getNextProductId(),
+    const product = await addProduct({
       name: body.name,
       category: body.category,
       slug: body.slug,
@@ -29,9 +28,9 @@ export async function POST(request) {
       images: body.images || [],
       description: body.description || "",
       details: body.details || [],
-    };
+      featured: body.featured || false,
+    });
 
-    addProduct(product);
     return Response.json(product, { status: 201 });
   } catch {
     return Response.json({ error: "Invalid request" }, { status: 400 });

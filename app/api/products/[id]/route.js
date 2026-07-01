@@ -13,7 +13,7 @@ export async function PUT(request, { params }) {
   }
 
   const { id } = await params;
-  const existing = getProductById(id);
+  const existing = await getProductById(id);
   if (!existing) {
     return Response.json({ error: "Not found" }, { status: 404 });
   }
@@ -34,8 +34,8 @@ export async function PUT(request, { params }) {
     if (body.details !== undefined) updated.details = body.details;
     if (body.featured !== undefined) updated.featured = body.featured;
 
-    updateProduct(id, updated);
-    return Response.json({ ...existing, ...updated });
+    const product = await updateProduct(id, updated);
+    return Response.json(product);
   } catch {
     return Response.json({ error: "Invalid request" }, { status: 400 });
   }
@@ -47,11 +47,11 @@ export async function DELETE(request, { params }) {
   }
 
   const { id } = await params;
-  const product = getProductById(id);
+  const product = await getProductById(id);
   if (!product) {
     return Response.json({ error: "Not found" }, { status: 404 });
   }
 
-  deleteProduct(id);
+  await deleteProduct(id);
   return Response.json({ success: true });
 }
