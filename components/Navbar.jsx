@@ -1,0 +1,106 @@
+"use client";
+
+import { useState } from "react";
+import Link from "next/link";
+import { Menu, X, Home } from "lucide-react";
+import { categories } from "@/data/products";
+
+export default function Navbar() {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <>
+      <nav className="sticky top-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border">
+        <div className="mx-auto flex h-16 items-center justify-between px-5 max-w-lg">
+          <Link href="/" className="font-script text-2xl tracking-wide text-text">
+            Rishita Ke Rang
+          </Link>
+          <button
+            onClick={() => setOpen(true)}
+            className="flex items-center justify-center w-10 h-10 rounded-xl bg-soft text-muted hover:bg-border transition-colors"
+          >
+            <Menu size={22} />
+          </button>
+        </div>
+      </nav>
+
+      <div
+        className={`fixed inset-0 z-50 transition-all duration-400 ${
+          open ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+        }`}
+      >
+        <div
+          className="absolute inset-0 bg-black/20 backdrop-blur-sm"
+          onClick={() => setOpen(false)}
+        />
+
+        <div
+          className={`absolute top-0 right-0 h-full w-80 bg-background shadow-2xl transition-transform duration-400 ease-out ${
+            open ? "translate-x-0" : "translate-x-full"
+          }`}
+        >
+          <div className="relative h-40 bg-gradient-to-br from-primary/30 via-accent/20 to-secondary/25 flex flex-col justify-end px-6 pb-5">
+            <button
+              onClick={() => setOpen(false)}
+              className="absolute top-4 right-4 flex items-center justify-center w-9 h-9 rounded-full bg-white/20 backdrop-blur-sm text-white hover:bg-white/30 transition-colors"
+            >
+              <X size={18} />
+            </button>
+            <p className="font-script text-3xl text-white drop-shadow-sm">
+              Rishita Ke Rang
+            </p>
+            <p className="text-sm text-white/80 mt-1 font-medium">
+              Handmade Clay Art
+            </p>
+          </div>
+
+          <div className="p-5">
+            <Link
+              href="/"
+              onClick={() => setOpen(false)}
+              className="flex items-center gap-3 w-full rounded-2xl px-4 py-3.5 text-sm font-medium text-text hover:bg-soft transition-colors"
+            >
+              <span className="flex items-center justify-center w-8 h-8 rounded-xl bg-soft text-muted">
+                <Home size={16} />
+              </span>
+              Home
+            </Link>
+
+            <div className="flex items-center gap-3 mt-6 mb-3 px-4">
+              <span className="h-px flex-1 bg-border/60" />
+              <span className="text-[10px] uppercase tracking-[0.2em] text-muted/50 font-medium">
+                Collections
+              </span>
+              <span className="h-px flex-1 bg-border/60" />
+            </div>
+
+            <div className="space-y-0.5">
+              {categories.map((cat) => (
+                <Link
+                  key={cat.slug}
+                  href={`/category/${cat.slug}`}
+                  onClick={() => setOpen(false)}
+                  className="flex items-center gap-3 w-full rounded-2xl px-4 py-3 text-sm text-text hover:bg-soft transition-colors group"
+                >
+                  <span className="flex items-center justify-center w-8 h-8 rounded-xl bg-soft text-base group-hover:scale-110 transition-transform">
+                    {cat.icon}
+                  </span>
+                  <div>
+                    <p className="font-medium">{cat.name}</p>
+                    <p className="text-xs text-muted/60">{cat.description}</p>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+
+          <div className="absolute bottom-0 left-0 right-0 p-5 border-t border-border">
+            <p className="text-center text-[10px] uppercase tracking-[0.15em] text-muted/40">
+              Every piece made with love 💛
+            </p>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}

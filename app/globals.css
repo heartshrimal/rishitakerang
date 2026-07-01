@@ -1,0 +1,46 @@
+@import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;500;600;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --color-background: #faf6f2;
+  --color-surface: #fffdf9;
+
+  --color-primary: #c4956a;
+  --color-secondary: #9ab0a0;
+  --color-accent: #d48464;
+
+  --color-text: #2c2420;
+  --color-muted: #8a7a6e;
+  --color-border: #e8ddd0;
+  --color-soft: #f5ede4;
+
+  --font-display: "Playfair Display", serif;
+  --font-body: "Geist", sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  @apply bg-background text-text font-body;
+}
+
+::selection {
+  @apply bg-accent/20 text-text;
+}
+
+.font-script {
+  font-family: "Dancing Script", cursive;
+}
+
+.bg-noise {
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 128px;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
