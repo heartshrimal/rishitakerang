@@ -1,7 +1,7 @@
 'use client';
 import { useRef, useEffect } from 'react';
 
-export default function Parallax({ children, speed = 0, className = '' }) {
+export default function Parallax({ children, speed = 0, className = '', ...rest }) {
   const ref = useRef(null);
 
   useEffect(() => {
@@ -19,7 +19,7 @@ export default function Parallax({ children, speed = 0, className = '' }) {
   }, [speed]);
 
   return (
-    <div ref={ref} className={className}>
+    <div ref={ref} className={className} {...rest}>
       {children}
     </div>
   );
