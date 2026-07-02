@@ -7,7 +7,7 @@ export default function ScrollingBanner() {
   ];
 
   return (
-    <div className="sticky top-16 z-40 w-full overflow-hidden bg-mlue border-y border-mlue/20 py-2">
+    <div className="sticky top-15 z-40 w-full overflow-hidden bg-mlue border-y border-mlue/20 py-2">
       <div className="flex animate-[marquee_10s_linear_infinite] gap-12 whitespace-nowrap">
         {[...items, ...items].map((text, i) => (
           <span key={i} className="text-xs font-medium text-text/70 tracking-wide">
