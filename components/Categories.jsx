@@ -17,7 +17,7 @@ export default function Categories({ categories }) {
             <Link
               key={cat.name}
               href={`/category/${cat.slug}`}
-              className="flex flex-col items-center gap-3 rounded-2xl bg-surface border border-border p-6 active:scale-[0.97] transition-transform hover:border-accent/30"
+              className="flex flex-col items-center gap-3 rounded-2xl bg-soft border border-border p-6 active:scale-[0.97] transition-transform hover:border-accent/30"
             >
               <span className="text-3xl">{cat.icon}</span>
               <span className="text-sm font-medium text-text">{cat.name}</span>

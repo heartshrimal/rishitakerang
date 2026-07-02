@@ -49,11 +49,6 @@ export default function SplashScreen({ onFinish }) {
         phase === "fading" ? "opacity-0" : "opacity-100"
       }`}
     >
-      <div className="fixed inset-0 -z-10 bg-noise" aria-hidden>
-        <div className="absolute -top-24 -right-16 w-[28rem] h-[28rem] rounded-full bg-primary/25" />
-        <div className="absolute -bottom-16 left-1/3 w-72 h-72 rounded-[60%_40%_30%_70%/50%_60%_40%_50%] bg-primary/20" />
-      </div>
-
       <svg
         viewBox="0 0 600 300"
         className="w-full max-w-[500px] h-auto px-8"
@@ -124,10 +119,6 @@ export default function SplashScreen({ onFinish }) {
 
         {phase === "done" && (
           <g opacity="0" className="animate-[fadeIn_0.6s_ease-out_0.2s_forwards]">
-            <circle cx="80" cy="130" r="3" fill="#c4956a" opacity="0.5" />
-            <circle cx="525" cy="170" r="2.5" fill="#d48464" opacity="0.5" />
-            <circle cx="550" cy="155" r="4" fill="#c4956a" opacity="0.4" />
-            <circle cx="65" cy="190" r="2" fill="#9ab0a0" opacity="0.5" />
             <text
               x="300"
               y="255"

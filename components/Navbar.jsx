@@ -10,17 +10,19 @@ export default function Navbar() {
 
   return (
     <>
-      <nav className="sticky top-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border">
+      <nav className="sticky top-[-2px] z-50 bg-text backdrop-blur-lg">
         <div className="mx-auto flex h-16 items-center justify-between px-5 max-w-lg">
-          <Link href="/" className="font-script text-2xl tracking-wide text-text">
+          <Link href="/" className="font-script text-2xl tracking-wide text-white">
             Rishita Ke Rang
           </Link>
-          <button
-            onClick={() => setOpen(true)}
-            className="flex items-center justify-center w-10 h-10 rounded-xl bg-soft text-muted hover:bg-border transition-colors"
-          >
-            <Menu size={22} />
-          </button>
+          <div className="flex items-center">
+            <button
+              onClick={() => setOpen(true)}
+              className="flex items-center justify-center w-10 h-10 rounded-xl bg-white/15 text-white/80 hover:bg-white/25 transition-colors"
+            >
+              <Menu size={22} />
+            </button>
+          </div>
         </div>
       </nav>
 

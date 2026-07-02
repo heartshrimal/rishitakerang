@@ -2,24 +2,41 @@
 @import "tailwindcss";
 
 @theme {
-  --color-background: #faf6f2;
-  --color-surface: #fffdf9;
-
-  --color-primary: #c4956a;
-  --color-secondary: #9ab0a0;
-  --color-accent: #d48464;
-
-  --color-text: #2c2420;
-  --color-muted: #8a7a6e;
-  --color-border: #e8ddd0;
-  --color-soft: #f5ede4;
+  --color-background: #fef5e7;
+  --color-surface: #fffbf0;
+  --color-primary: #d4a843;
+  --color-secondary: #8b5e3c;
+  --color-accent: #c0764a;
+  --color-text: #4d111f;
+  --color-muted: #8b7355;
+  --color-border: #e8d5c4;
+  --color-soft: #fff1b5;
+  --color-mlue: #99c3d8;
+  --color-darkmlue: #56a9d2;
 
   --font-display: "Playfair Display", serif;
   --font-body: "Geist", sans-serif;
 }
 
+[data-theme="pink"] {
+  --color-background: #fdf0f0;
+  --color-surface: #fff5f5;
+  --color-primary: #e8a0b4;
+  --color-secondary: #c9a9c5;
+  --color-accent: #f0a0a0;
+  --color-text: #4a2c2c;
+  --color-muted: #9a7a7a;
+  --color-border: #f0dcdc;
+  --color-soft: #f8eaea;
+  --color-mlue: #b8a9d4;
+}
+
 * {
   box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
@@ -65,6 +82,11 @@ body {
 @keyframes spin-slow-reverse {
   from { transform: rotate(360deg); }
   to { transform: rotate(0deg); }
+}
+
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
 }
 
 @keyframes blob-drift {
