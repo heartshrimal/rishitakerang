@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Menu, X, Home } from "lucide-react";
+import { Menu, X, Home, User, Mail } from "lucide-react";
 import { categories } from "@/data/products";
 
 export default function Navbar() {
@@ -64,6 +64,28 @@ export default function Navbar() {
                 <Home size={16} />
               </span>
               Home
+            </Link>
+
+            <Link
+              href="/about"
+              onClick={() => setOpen(false)}
+              className="flex items-center gap-3 w-full rounded-2xl px-4 py-3.5 text-sm font-medium text-text hover:bg-soft transition-colors"
+            >
+              <span className="flex items-center justify-center w-8 h-8 rounded-xl bg-soft text-muted">
+                <User size={16} />
+              </span>
+              About Me
+            </Link>
+
+            <Link
+              href="/contact"
+              onClick={() => setOpen(false)}
+              className="flex items-center gap-3 w-full rounded-2xl px-4 py-3.5 text-sm font-medium text-text hover:bg-soft transition-colors"
+            >
+              <span className="flex items-center justify-center w-8 h-8 rounded-xl bg-soft text-muted">
+                <Mail size={16} />
+              </span>
+              Contact
             </Link>
 
             <div className="flex items-center gap-3 mt-6 mb-3 px-4">
