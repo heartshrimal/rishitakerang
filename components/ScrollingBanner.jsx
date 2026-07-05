@@ -2,12 +2,7 @@
 
 import { useEffect, useRef, useState, useMemo } from 'react';
 
-const DEFAULTS = [
-  '🎉 Sale! Up to 20% off on select items',
-  '🚚 Free shipping on orders above ₹2000',
-  '💝 Handmade with love, just for you',
-  '✨ Custom orders welcome — DM to customize',
-];
+const DEFAULTS = [];
 
 export default function ScrollingBanner() {
   const [items, setItems] = useState(DEFAULTS);
