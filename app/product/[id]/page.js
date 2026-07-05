@@ -69,10 +69,18 @@ export default async function ProductPage({ params }) {
             </ul>
           </div>
 
-          <EnquireButton
-            product={product}
-            className="w-full rounded-2xl bg-text py-4 text-background font-medium text-base hover:opacity-90 transition-opacity active:scale-[0.98] mt-6"
-          />
+          <div className="flex gap-3 mt-6">
+            <Link
+              href={`/payment?id=${product.id}&name=${encodeURIComponent(product.name)}&price=${product.price}`}
+              className="flex-1 rounded-2xl bg-accent py-4 text-white font-medium text-sm text-center hover:opacity-90 transition-opacity active:scale-[0.98]"
+            >
+              Buy Now — ₹{product.price}
+            </Link>
+            <EnquireButton
+              product={product}
+              className="flex-1 rounded-2xl bg-text py-4 text-background font-medium text-sm hover:opacity-90 transition-opacity active:scale-[0.98]"
+            />
+          </div>
         </div>
       </section>
     </>

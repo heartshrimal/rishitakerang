@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Menu, X, Home, User, Mail } from "lucide-react";
+import { Menu, X, Home, User, Mail, CreditCard, Search } from "lucide-react";
 import { categories } from "@/data/products";
 
 export default function Navbar() {
@@ -88,6 +88,28 @@ export default function Navbar() {
                 <Mail size={16} />
               </span>
               Contact
+            </Link>
+
+            <Link
+              href="/order"
+              onClick={() => setOpen(false)}
+              className="flex items-center gap-3 w-full rounded-2xl px-4 py-3.5 text-sm font-medium text-text hover:bg-soft transition-colors"
+            >
+              <span className="flex items-center justify-center w-8 h-8 rounded-xl bg-soft text-muted">
+                <Search size={16} />
+              </span>
+              Track Order
+            </Link>
+
+            <Link
+              href="/payment"
+              onClick={() => setOpen(false)}
+              className="flex items-center gap-3 w-full rounded-2xl px-4 py-3.5 text-sm font-medium text-text hover:bg-soft transition-colors"
+            >
+              <span className="flex items-center justify-center w-8 h-8 rounded-xl bg-soft text-muted">
+                <CreditCard size={16} />
+              </span>
+              Checkout
             </Link>
 
             <div className="flex items-center gap-3 mt-6 mb-3 px-4">

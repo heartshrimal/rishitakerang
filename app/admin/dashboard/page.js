@@ -553,6 +553,139 @@ function ManageProducts({ onRefresh, onEdit }) {
   );
 }
 
+function PaymentsView() {
+  const [payments, setPayments] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [confirming, setConfirming] = useState(null);
+
+  useEffect(() => {
+    fetch("/api/payments")
+      .then((r) => r.json())
+      .then(setPayments)
+      .finally(() => setLoading(false));
+  }, []);
+
+  async function handleConfirm(id) {
+    setConfirming(id);
+    try {
+      const res = await fetch(`/api/payments/${id}`, { method: "PATCH" });
+      if (res.ok) {
+        setPayments((prev) => prev.filter((p) => p.id !== id));
+      }
+    } catch {
+    } finally {
+      setConfirming(null);
+    }
+  }
+
+  if (loading) {
+    return <p className="text-sm text-muted text-center py-8">Loading...</p>;
+  }
+
+  if (payments.length === 0) {
+    return (
+      <p className="text-sm text-muted text-center py-8">
+        No pending payments.
+      </p>
+    );
+  }
+
+  return (
+    <div className="space-y-3">
+      {payments.map((p) => (
+        <div
+          key={p.id}
+          className="rounded-2xl bg-surface border border-border p-4 space-y-2"
+        >
+          <div className="flex items-center justify-between">
+            <p className="text-sm font-medium text-text">{p.name}</p>
+            <span className="text-xs bg-yellow-100 text-yellow-700 px-2.5 py-0.5 rounded-full font-medium">
+              {p.status}
+            </span>
+          </div>
+          <p className="text-xs text-muted">
+            {p.productName} · ₹{p.productPrice}
+          </p>
+          <p className="text-xs text-muted">
+            Phone: {p.phone}
+            {p.razorpayPaymentId
+              ? ` · Razorpay: ${p.razorpayPaymentId}`
+              : p.utr
+              ? ` · UTR: ${p.utr}`
+              : ""}
+          </p>
+          <p className="text-xs text-muted/60">
+            {new Date(p.createdAt).toLocaleString()}
+          </p>
+          <button
+            onClick={() => handleConfirm(p.id)}
+            disabled={confirming === p.id}
+            className="w-full rounded-xl bg-green-600 py-2.5 text-white text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-50"
+          >
+            {confirming === p.id ? "..." : "✓ Mark Confirmed"}
+          </button>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function OrdersView() {
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch("/api/payments")
+      .then((r) => r.json())
+      .then((all) => setOrders(all.filter((p) => p.status === "confirmed")))
+      .finally(() => setLoading(false));
+  }, []);
+
+  if (loading) {
+    return <p className="text-sm text-muted text-center py-8">Loading...</p>;
+  }
+
+  if (orders.length === 0) {
+    return (
+      <p className="text-sm text-muted text-center py-8">
+        No confirmed orders yet.
+      </p>
+    );
+  }
+
+  return (
+    <div className="space-y-3">
+      {orders.map((o) => (
+        <div
+          key={o.id}
+          className="rounded-2xl bg-surface border border-border p-4 space-y-2"
+        >
+          <div className="flex items-center justify-between">
+            <p className="text-sm font-medium text-text">{o.name}</p>
+            <span className="text-xs bg-green-100 text-green-700 px-2.5 py-0.5 rounded-full font-medium">
+              Confirmed
+            </span>
+          </div>
+          <p className="text-xs text-muted">
+            {o.productName} · ₹{o.productPrice}
+          </p>
+          <p className="text-xs text-muted">
+            Phone: {o.phone}
+            {o.razorpayPaymentId
+              ? ` · Payment: ${o.razorpayPaymentId}`
+              : o.utr
+              ? ` · UTR: ${o.utr}`
+              : ""}
+          </p>
+          <p className="text-xs text-muted/60">
+            {new Date(o.createdAt).toLocaleString()}
+          </p>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export default function AdminDashboard() {
   const [authed, setAuthed] = useState(false);
   const [checking, setChecking] = useState(true);
@@ -638,7 +771,7 @@ export default function AdminDashboard() {
 
       <div className="max-w-lg mx-auto px-5 pt-6 pb-20">
         <div className="flex gap-2 mb-8">
-          {["product", "manage", "category"].map((t) => (
+          {["product", "manage", "payments", "orders", "category"].map((t) => (
             <button
               key={t}
               onClick={() => {
@@ -653,7 +786,10 @@ export default function AdminDashboard() {
             >
               {t === "product"
                 ? editingProduct ? "Edit" : "Add"
-                : t === "manage" ? "Manage" : "Category"}
+                : t === "manage" ? "Manage"
+                : t === "payments" ? "Payments"
+                : t === "orders" ? "Orders"
+                : "Category"}
             </button>
           ))}
         </div>
@@ -682,6 +818,10 @@ export default function AdminDashboard() {
             }}
           />
         )}
+
+        {tab === "payments" && <PaymentsView />}
+
+        {tab === "orders" && <OrdersView />}
 
         {tab === "category" && (
           <CategoryForm

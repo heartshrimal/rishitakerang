@@ -151,6 +151,17 @@ export const products = [
     ],
   },
   {
+    id: 9,
+    name: "Test Product (₹1)",
+    category: "Earrings",
+    slug: "earrings",
+    price: 1,
+    image: "/products/earrings.png",
+    images: ["/products/earrings.png"],
+    description: "Test product for payment testing — costs only ₹1.",
+    details: ["Test item", " ₹1 only"],
+  },
+  {
     id: 8,
     name: "Custom Frame",
     category: "Mini Frames",
