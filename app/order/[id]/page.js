@@ -103,16 +103,16 @@ export default function OrderPage() {
             </p>
             <p>
               <span className="text-text font-medium">Product:</span>{" "}
-              {payment.productName}
+              {payment.product_name}
             </p>
             <p>
               <span className="text-text font-medium">Amount:</span> ₹
-              {payment.productPrice}
+              {payment.product_price}
             </p>
-            {payment.razorpayPaymentId ? (
+            {payment.razorpay_payment_id ? (
               <p>
                 <span className="text-text font-medium">Payment ID:</span>{" "}
-                {payment.razorpayPaymentId}
+                {payment.razorpay_payment_id}
               </p>
             ) : payment.utr ? (
               <p>
@@ -122,7 +122,7 @@ export default function OrderPage() {
             ) : null}
             <p>
               <span className="text-text font-medium">Date:</span>{" "}
-              {new Date(payment.createdAt).toLocaleDateString()}
+              {new Date(payment.created_at).toLocaleDateString()}
             </p>
           </div>
         </div>

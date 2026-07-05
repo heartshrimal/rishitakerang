@@ -604,18 +604,18 @@ function PaymentsView() {
             </span>
           </div>
           <p className="text-xs text-muted">
-            {p.productName} · ₹{p.productPrice}
+            {p.product_name} · ₹{p.product_price}
           </p>
           <p className="text-xs text-muted">
             Phone: {p.phone}
-            {p.razorpayPaymentId
-              ? ` · Razorpay: ${p.razorpayPaymentId}`
+            {p.razorpay_payment_id
+              ? ` · Razorpay: ${p.razorpay_payment_id}`
               : p.utr
               ? ` · UTR: ${p.utr}`
               : ""}
           </p>
           <p className="text-xs text-muted/60">
-            {new Date(p.createdAt).toLocaleString()}
+            {new Date(p.created_at).toLocaleString()}
           </p>
           <button
             onClick={() => handleConfirm(p.id)}
@@ -667,18 +667,18 @@ function OrdersView() {
             </span>
           </div>
           <p className="text-xs text-muted">
-            {o.productName} · ₹{o.productPrice}
+            {o.product_name} · ₹{o.product_price}
           </p>
           <p className="text-xs text-muted">
             Phone: {o.phone}
-            {o.razorpayPaymentId
-              ? ` · Payment: ${o.razorpayPaymentId}`
+            {o.razorpay_payment_id
+              ? ` · Payment: ${o.razorpay_payment_id}`
               : o.utr
               ? ` · UTR: ${o.utr}`
               : ""}
           </p>
           <p className="text-xs text-muted/60">
-            {new Date(o.createdAt).toLocaleString()}
+            {new Date(o.created_at).toLocaleString()}
           </p>
         </div>
       ))}
