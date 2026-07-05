@@ -688,18 +688,30 @@ function OrdersView() {
 
 function BannerEditor() {
   const [items, setItems] = useState([]);
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    const saved = localStorage.getItem("banner_items");
-    if (saved) {
-      try { setItems(JSON.parse(saved)); } catch {}
-    }
+    fetch("/api/banner")
+      .then((r) => r.json())
+      .then((data) => {
+        if (Array.isArray(data)) setItems(data);
+      })
+      .catch(() => {});
   }, []);
 
-  function save(next) {
+  async function save(next) {
     setItems(next);
-    localStorage.setItem("banner_items", JSON.stringify(next));
-    window.dispatchEvent(new Event("banner-update"));
+    setSaving(true);
+    const token = localStorage.getItem("admin_token");
+    try {
+      await fetch("/api/banner", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ items: next }),
+      });
+      window.dispatchEvent(new Event("banner-update"));
+    } catch {}
+    setSaving(false);
   }
 
   function add() {

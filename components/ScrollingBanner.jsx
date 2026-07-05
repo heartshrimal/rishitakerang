@@ -13,16 +13,20 @@ export default function ScrollingBanner() {
   const [items, setItems] = useState(DEFAULTS);
 
   useEffect(() => {
-    const saved = localStorage.getItem('banner_items');
-    if (saved) {
-      try { setItems(JSON.parse(saved)); } catch {}
-    }
+    fetch('/api/banner')
+      .then((r) => r.json())
+      .then((data) => {
+        if (Array.isArray(data) && data.length) setItems(data);
+      })
+      .catch(() => {});
 
     function onUpdate() {
-      const s = localStorage.getItem('banner_items');
-      if (s) {
-        try { setItems(JSON.parse(s)); } catch {}
-      }
+      fetch('/api/banner')
+        .then((r) => r.json())
+        .then((data) => {
+          if (Array.isArray(data) && data.length) setItems(data);
+        })
+        .catch(() => {});
     }
     window.addEventListener('banner-update', onUpdate);
     return () => window.removeEventListener('banner-update', onUpdate);
