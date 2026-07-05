@@ -1,6 +1,6 @@
 import Link from "next/link";
 import ImageGallery from "./ImageGallery";
-import EnquireButton from "@/components/EnquireButton";
+import CustomizeButton from "@/components/EnquireButton";
 import { getProductById, getAllCategories } from "@/lib/store";
 import { notFound } from "next/navigation";
 
@@ -47,7 +47,7 @@ export default async function ProductPage({ params }) {
             </h1>
             <div className="w-8 h-[2px] bg-accent/30 mx-auto mt-3" />
             <p className="text-2xl font-semibold text-text mt-4">
-              ₹{product.price}+
+              ₹{product.price}
             </p>
           </div>
 
@@ -76,7 +76,7 @@ export default async function ProductPage({ params }) {
             >
               Buy Now — ₹{product.price}
             </Link>
-            <EnquireButton
+            <CustomizeButton
               product={product}
               className="flex-1 rounded-2xl bg-text py-4 text-background font-medium text-sm hover:opacity-90 transition-opacity active:scale-[0.98]"
             />

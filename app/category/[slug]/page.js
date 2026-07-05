@@ -75,7 +75,7 @@ export default async function CategoryPage({ params }) {
                   </p>
                   <div className="flex items-center justify-between mt-auto pt-3">
                     <span className="text-base font-semibold text-text">
-                      ₹{product.price}+
+                      ₹{product.price}
                     </span>
                     <Link
                       href={`/product/${product.id}`}

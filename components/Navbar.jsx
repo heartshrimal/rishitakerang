@@ -37,11 +37,11 @@ export default function Navbar() {
         />
 
         <div
-          className={`absolute top-0 right-0 h-full w-80 bg-background shadow-2xl transition-transform duration-400 ease-out ${
+          className={`absolute top-0 right-0 h-full w-80 bg-background shadow-2xl transition-transform duration-400 ease-out flex flex-col ${
             open ? "translate-x-0" : "translate-x-full"
           }`}
         >
-          <div className="relative h-40 bg-gradient-to-br from-primary/30 via-accent/20 to-secondary/25 flex flex-col justify-end px-6 pb-5">
+          <div className="shrink-0 h-40 bg-gradient-to-br from-primary/30 via-accent/20 to-secondary/25 flex flex-col justify-end px-6 pb-5">
             <button
               onClick={() => setOpen(false)}
               className="absolute top-4 right-4 flex items-center justify-center w-9 h-9 rounded-full bg-white/20 backdrop-blur-sm text-white hover:bg-white/30 transition-colors"
@@ -56,7 +56,7 @@ export default function Navbar() {
             </p>
           </div>
 
-          <div className="p-5">
+          <div className="flex-1 overflow-y-auto p-5">
             <Link
               href="/"
               onClick={() => setOpen(false)}
@@ -140,7 +140,7 @@ export default function Navbar() {
             </div>
           </div>
 
-          <div className="absolute bottom-0 left-0 right-0 p-5 border-t border-border">
+          <div className="shrink-0 p-5 border-t border-border">
             <p className="text-center text-[10px] uppercase tracking-[0.15em] text-muted/40">
               Every piece made with love 💛
             </p>

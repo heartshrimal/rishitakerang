@@ -63,7 +63,7 @@ function ProductPanel({ product, index }) {
             {product.description}
           </p>
           <p className="text-lg font-display font-semibold text-text mb-5">
-            ₹{product.price}+
+            ₹{product.price}
           </p>
           <Link
             href={`/product/${product.id}`}

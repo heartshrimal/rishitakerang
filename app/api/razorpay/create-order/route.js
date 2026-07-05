@@ -8,13 +8,15 @@ const razorpay = new Razorpay({
 
 export async function POST(request) {
   try {
-    const { productId, productName, productPrice, name, phone } = await request.json();
+    const { productId, productName, productPrice, name, phone, email, address } = await request.json();
 
     if (!name || !phone) {
       return Response.json({ error: "Name and phone are required" }, { status: 400 });
     }
 
-    const amountInPaise = Math.round(Number(productPrice) * 100);
+    const shipping = 100;
+    const total = Number(productPrice) + shipping;
+    const amountInPaise = Math.round(total * 100);
 
     const razorpayOrder = await razorpay.orders.create({
       amount: amountInPaise,
@@ -26,6 +28,9 @@ export async function POST(request) {
     const payment = await addPayment({
       name,
       phone,
+      email: email || "",
+      address: address || "",
+      shipping,
       utr: "",
       product_name: productName,
       product_price: Number(productPrice),

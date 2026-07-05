@@ -1,4 +1,4 @@
-import EnquireButton from "./EnquireButton";
+import CustomizeButton from "./EnquireButton";
 
 export default function Hero() {
   return (
@@ -30,7 +30,7 @@ export default function Hero() {
           Every piece is handmade, fully customizable, and created with love.
         </p>
 
-        <EnquireButton
+        <CustomizeButton
           className="mt-8 w-full rounded-2xl bg-text px-7 py-4 text-background font-medium text-base hover:opacity-90 transition-opacity active:scale-[0.98] block text-center"
           label="Let's Talk →"
         />

@@ -14,12 +14,12 @@ function Toast({ message, visible }) {
   );
 }
 
-export default function EnquireButton({ product, label = "Enquire Now", className = "" }) {
+export default function CustomizeButton({ product, label = "Customize", className = "" }) {
   const [toast, setToast] = useState(null);
 
   function handleClick() {
     const text = product
-      ? `Hi! I'm interested in "${product.name}" (${product.category} - ₹${product.price}+). Could you share more details?`
+      ? `Hi! I'm interested in "${product.name}" (${product.category} - ₹${product.price}). Could you share more details?`
       : "Hi! I'd like to know more about your creations.";
 
     navigator.clipboard.writeText(text).catch(() => {});

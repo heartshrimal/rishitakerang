@@ -143,7 +143,7 @@ function PreviewCard({ product }) {
         <h3 className="font-display text-lg text-text">{product.name}</h3>
         <div className="flex items-center justify-between pt-1">
           <span className="text-base font-semibold text-text">
-            ₹{product.price}+
+            ₹{product.price}
           </span>
           <span className="text-sm font-medium text-accent">
             View Details →
@@ -686,6 +686,68 @@ function OrdersView() {
   );
 }
 
+function BannerEditor() {
+  const [items, setItems] = useState([]);
+
+  useEffect(() => {
+    const saved = localStorage.getItem("banner_items");
+    if (saved) {
+      try { setItems(JSON.parse(saved)); } catch {}
+    }
+  }, []);
+
+  function save(next) {
+    setItems(next);
+    localStorage.setItem("banner_items", JSON.stringify(next));
+    window.dispatchEvent(new Event("banner-update"));
+  }
+
+  function add() {
+    save([...items, ""]);
+  }
+
+  function update(i, value) {
+    const next = [...items];
+    next[i] = value;
+    save(next);
+  }
+
+  function remove(i) {
+    save(items.filter((_, idx) => idx !== i));
+  }
+
+  return (
+    <div className="space-y-4">
+      <p className="text-sm text-muted">Edit the scrolling banner messages. Changes apply immediately.</p>
+      {items.map((text, i) => (
+        <div key={i} className="flex gap-2 items-start">
+          <input
+            type="text"
+            value={text}
+            onChange={(e) => update(i, e.target.value)}
+            placeholder="Banner text"
+            className="flex-1 rounded-xl border border-border bg-surface px-4 py-2.5 text-sm text-text outline-none focus:border-accent transition-colors"
+          />
+          <button
+            type="button"
+            onClick={() => remove(i)}
+            className="w-9 h-9 rounded-xl border border-border flex items-center justify-center text-muted hover:text-red-500 transition-colors shrink-0"
+          >
+            ×
+          </button>
+        </div>
+      ))}
+      <button
+        type="button"
+        onClick={add}
+        className="text-sm text-accent hover:text-primary transition-colors"
+      >
+        + Add banner item
+      </button>
+    </div>
+  );
+}
+
 export default function AdminDashboard() {
   const [authed, setAuthed] = useState(false);
   const [checking, setChecking] = useState(true);
@@ -771,7 +833,7 @@ export default function AdminDashboard() {
 
       <div className="max-w-lg mx-auto px-5 pt-6 pb-20">
         <div className="flex gap-2 mb-8">
-          {["product", "manage", "payments", "orders", "category"].map((t) => (
+          {["product", "manage", "payments", "orders", "category", "banner"].map((t) => (
             <button
               key={t}
               onClick={() => {
@@ -789,7 +851,8 @@ export default function AdminDashboard() {
                 : t === "manage" ? "Manage"
                 : t === "payments" ? "Payments"
                 : t === "orders" ? "Orders"
-                : "Category"}
+                : t === "category" ? "Category"
+                : "Banner"}
             </button>
           ))}
         </div>
@@ -832,6 +895,8 @@ export default function AdminDashboard() {
             }
           />
         )}
+
+        {tab === "banner" && <BannerEditor />}
       </div>
     </div>
   );
