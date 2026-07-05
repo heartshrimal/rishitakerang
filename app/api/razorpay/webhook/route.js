@@ -1,22 +1,5 @@
-import { readFile, writeFile, mkdir } from "fs/promises";
-import path from "path";
+import { supabase } from "@/lib/supabase";
 import crypto from "crypto";
-
-const PAYMENTS_FILE = path.join(process.cwd(), "data", "store", "payments.json");
-
-async function readPayments() {
-  try {
-    const data = await readFile(PAYMENTS_FILE, "utf-8");
-    return JSON.parse(data);
-  } catch {
-    return [];
-  }
-}
-
-async function writePayments(payments) {
-  await mkdir(path.dirname(PAYMENTS_FILE), { recursive: true });
-  await writeFile(PAYMENTS_FILE, JSON.stringify(payments, null, 2));
-}
 
 export async function POST(request) {
   try {
@@ -39,13 +22,17 @@ export async function POST(request) {
       const payment = payload.payload.payment.entity;
       const orderId = payment.order_id;
 
-      const payments = await readPayments();
-      const index = payments.findIndex((p) => p.razorpayOrderId === orderId);
+      const { data: existing } = await supabase
+        .from("payments")
+        .select("id, status")
+        .eq("razorpay_order_id", orderId)
+        .single();
 
-      if (index !== -1 && payments[index].status !== "confirmed") {
-        payments[index].status = "confirmed";
-        payments[index].razorpayPaymentId = payment.id;
-        await writePayments(payments);
+      if (existing && existing.status !== "confirmed") {
+        await supabase
+          .from("payments")
+          .update({ status: "confirmed", razorpay_payment_id: payment.id })
+          .eq("id", existing.id);
       }
     }
 

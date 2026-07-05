@@ -1,22 +1,5 @@
 import Razorpay from "razorpay";
-import { readFile, writeFile, mkdir } from "fs/promises";
-import path from "path";
-
-const PAYMENTS_FILE = path.join(process.cwd(), "data", "store", "payments.json");
-
-async function readPayments() {
-  try {
-    const data = await readFile(PAYMENTS_FILE, "utf-8");
-    return JSON.parse(data);
-  } catch {
-    return [];
-  }
-}
-
-async function writePayments(payments) {
-  await mkdir(path.dirname(PAYMENTS_FILE), { recursive: true });
-  await writeFile(PAYMENTS_FILE, JSON.stringify(payments, null, 2));
-}
+import { addPayment } from "@/lib/store";
 
 const razorpay = new Razorpay({
   key_id: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
@@ -37,28 +20,19 @@ export async function POST(request) {
       amount: amountInPaise,
       currency: "INR",
       receipt: `order_${Date.now()}`,
-      notes: {
-        productName,
-        productId: String(productId),
-      },
+      notes: { productName, productId: String(productId) },
     });
 
-    const payments = await readPayments();
-    const payment = {
-      id: Date.now(),
+    const payment = await addPayment({
       name,
       phone,
       utr: "",
-      productName,
-      productPrice: Number(productPrice),
-      productId,
-      razorpayOrderId: razorpayOrder.id,
+      product_name: productName,
+      product_price: Number(productPrice),
+      product_id: productId ? Number(productId) : null,
+      razorpay_order_id: razorpayOrder.id,
       status: "pending",
-      createdAt: new Date().toISOString(),
-    };
-
-    payments.push(payment);
-    await writePayments(payments);
+    });
 
     return Response.json({
       id: payment.id,
