@@ -688,74 +688,74 @@ function OrdersView() {
 
 function BannerEditor() {
   const [items, setItems] = useState([]);
-  const [updatedAt, setUpdatedAt] = useState(null);
   const [saving, setSaving] = useState(false);
 
-  useEffect(() => {
+  function load() {
     fetch("/api/banner")
       .then((r) => r.json())
       .then((data) => {
-        if (data && Array.isArray(data.items)) setItems(data.items);
-        if (data?.updated_at) setUpdatedAt(data.updated_at);
+        if (Array.isArray(data)) setItems(data);
       })
       .catch(() => {});
-  }, []);
+  }
 
-  async function save(next) {
-    setItems(next);
+  useEffect(load, []);
+
+  function token() {
+    return localStorage.getItem("admin_token");
+  }
+
+  function api(body) {
+    return fetch("/api/banner", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token()}` },
+      body: JSON.stringify(body),
+    });
+  }
+
+  async function add() {
     setSaving(true);
-    const token = localStorage.getItem("admin_token");
     try {
-      const res = await fetch("/api/banner", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ items: next }),
-      });
-      if (res.ok) {
-        const data = await res.json();
-        if (data?.updated_at) setUpdatedAt(data.updated_at);
-      }
+      await api({ action: "add", text: "" });
+      load();
       window.dispatchEvent(new Event("banner-update"));
     } catch {}
     setSaving(false);
   }
 
-  function add() {
-    save([...items, ""]);
+  async function update(id, text) {
+    await api({ action: "update", id, text });
+    load();
+    window.dispatchEvent(new Event("banner-update"));
   }
 
-  function update(i, value) {
-    const next = [...items];
-    next[i] = value;
-    save(next);
-  }
-
-  function remove(i) {
-    save(items.filter((_, idx) => idx !== i));
+  async function remove(id) {
+    setSaving(true);
+    try {
+      await api({ action: "delete", id });
+      load();
+      window.dispatchEvent(new Event("banner-update"));
+    } catch {}
+    setSaving(false);
   }
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <p className="text-sm text-muted">Edit the scrolling banner messages. Changes apply immediately.</p>
-        {updatedAt && (
-          <span className="text-[10px] text-muted/50">
-            Updated {new Date(updatedAt).toLocaleString()}
-          </span>
-        )}
-      </div>
-      {items.map((text, i) => (
-        <div key={i} className="flex gap-2 items-start">
+      <p className="text-sm text-muted">Edit the scrolling banner messages.</p>
+      {items.map((item) => (
+        <div key={item.id} className="flex gap-2 items-start">
           <input
             type="text"
-            value={text}
-            onChange={(e) => update(i, e.target.value)}
+            defaultValue={item.text}
+            onBlur={(e) => {
+              if (e.target.value !== item.text) update(item.id, e.target.value);
+            }}
             placeholder="Banner text"
             className="flex-1 rounded-xl border border-border bg-surface px-4 py-2.5 text-sm text-text outline-none focus:border-accent transition-colors"
           />
           <button
             type="button"
-            onClick={() => remove(i)}
+            onClick={() => remove(item.id)}
             className="w-9 h-9 rounded-xl border border-border flex items-center justify-center text-muted hover:text-red-500 transition-colors shrink-0"
           >
             ×
@@ -765,7 +765,8 @@ function BannerEditor() {
       <button
         type="button"
         onClick={add}
-        className="text-sm text-accent hover:text-primary transition-colors"
+        disabled={saving}
+        className="text-sm text-accent hover:text-primary transition-colors disabled:opacity-50"
       >
         + Add banner item
       </button>

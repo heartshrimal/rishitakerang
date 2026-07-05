@@ -2,20 +2,11 @@
 
 import { useEffect, useRef, useState, useMemo } from 'react';
 
-const DEFAULTS = [];
-
 export default function ScrollingBanner() {
-  const [items, setItems] = useState(DEFAULTS);
+  const [items, setItems] = useState([]);
 
   useEffect(() => {
-    fetch('/api/banner')
-      .then((r) => r.json())
-      .then((data) => {
-        if (Array.isArray(data) && data.length) setItems(data);
-      })
-      .catch(() => {});
-
-    function onUpdate() {
+    function load() {
       fetch('/api/banner')
         .then((r) => r.json())
         .then((data) => {
@@ -23,17 +14,20 @@ export default function ScrollingBanner() {
         })
         .catch(() => {});
     }
-    window.addEventListener('banner-update', onUpdate);
-    return () => window.removeEventListener('banner-update', onUpdate);
+
+    load();
+    window.addEventListener('banner-update', load);
+    return () => window.removeEventListener('banner-update', load);
   }, []);
 
-  const copies = useMemo(() => Array.from({ length: 1000 }, () => items).flat(), [items]);
+  const texts = useMemo(() => items.map((i) => i.text), [items]);
+  const copies = useMemo(() => Array.from({ length: 1000 }, () => texts).flat(), [texts]);
 
   const trackRef = useRef(null);
 
   useEffect(() => {
     const track = trackRef.current;
-    if (!track) return;
+    if (!track || !texts.length) return;
 
     let offset = 0;
     let rafId;
@@ -46,9 +40,9 @@ export default function ScrollingBanner() {
 
     rafId = requestAnimationFrame(animate);
     return () => cancelAnimationFrame(rafId);
-  }, [items]);
+  }, [texts]);
 
-  if (!items.length) return null;
+  if (!texts.length) return null;
 
   return (
     <div className="sticky top-15 z-40 w-full overflow-hidden bg-mlue border-y border-mlue/20 py-2">

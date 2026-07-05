@@ -1,19 +1,9 @@
-const DEFAULTS = [
-  '🎉 Sale! Up to 20% off on select items',
-  '🚚 Free shipping on orders above ₹2000',
-  '💝 Handmade with love, just for you',
-  '✨ Custom orders welcome — DM to customize',
-];
-
 import { verifyToken } from "@/lib/auth";
-import { getBannerConfig, updateBannerItems } from "@/lib/store";
+import { getBannerItems, addBannerItem, updateBannerItem, deleteBannerItem } from "@/lib/store";
 
 export async function GET() {
-  const config = await getBannerConfig();
-  if (!config) {
-    return Response.json({ items: DEFAULTS, updated_at: null });
-  }
-  return Response.json(config);
+  const items = await getBannerItems();
+  return Response.json(items);
 }
 
 export async function POST(request) {
@@ -29,11 +19,26 @@ export async function POST(request) {
 
   try {
     const body = await request.json();
-    if (!Array.isArray(body.items)) {
-      return Response.json({ error: "items must be an array" }, { status: 400 });
+    const { action, id, text, position } = body;
+
+    if (action === "add") {
+      const items = await getBannerItems();
+      const nextPos = items.length > 0 ? Math.max(...items.map((i) => i.position)) + 1 : 0;
+      const item = await addBannerItem(text || "", nextPos);
+      return Response.json(item, { status: 201 });
     }
-    const items = await updateBannerItems(body.items);
-    return Response.json(items);
+
+    if (action === "update") {
+      const item = await updateBannerItem(id, text);
+      return Response.json(item);
+    }
+
+    if (action === "delete") {
+      await deleteBannerItem(id);
+      return Response.json({ ok: true });
+    }
+
+    return Response.json({ error: "Invalid action" }, { status: 400 });
   } catch {
     return Response.json({ error: "Invalid request" }, { status: 400 });
   }
