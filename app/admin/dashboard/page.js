@@ -688,13 +688,15 @@ function OrdersView() {
 
 function BannerEditor() {
   const [items, setItems] = useState([]);
+  const [updatedAt, setUpdatedAt] = useState(null);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     fetch("/api/banner")
       .then((r) => r.json())
       .then((data) => {
-        if (Array.isArray(data)) setItems(data);
+        if (data && Array.isArray(data.items)) setItems(data.items);
+        if (data?.updated_at) setUpdatedAt(data.updated_at);
       })
       .catch(() => {});
   }, []);
@@ -704,11 +706,15 @@ function BannerEditor() {
     setSaving(true);
     const token = localStorage.getItem("admin_token");
     try {
-      await fetch("/api/banner", {
+      const res = await fetch("/api/banner", {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({ items: next }),
       });
+      if (res.ok) {
+        const data = await res.json();
+        if (data?.updated_at) setUpdatedAt(data.updated_at);
+      }
       window.dispatchEvent(new Event("banner-update"));
     } catch {}
     setSaving(false);
@@ -730,7 +736,14 @@ function BannerEditor() {
 
   return (
     <div className="space-y-4">
-      <p className="text-sm text-muted">Edit the scrolling banner messages. Changes apply immediately.</p>
+      <div className="flex items-center justify-between">
+        <p className="text-sm text-muted">Edit the scrolling banner messages. Changes apply immediately.</p>
+        {updatedAt && (
+          <span className="text-[10px] text-muted/50">
+            Updated {new Date(updatedAt).toLocaleString()}
+          </span>
+        )}
+      </div>
       {items.map((text, i) => (
         <div key={i} className="flex gap-2 items-start">
           <input

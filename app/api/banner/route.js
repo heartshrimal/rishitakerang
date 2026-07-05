@@ -1,9 +1,19 @@
+const DEFAULTS = [
+  '🎉 Sale! Up to 20% off on select items',
+  '🚚 Free shipping on orders above ₹2000',
+  '💝 Handmade with love, just for you',
+  '✨ Custom orders welcome — DM to customize',
+];
+
 import { verifyToken } from "@/lib/auth";
-import { getBannerItems, updateBannerItems } from "@/lib/store";
+import { getBannerConfig, updateBannerItems } from "@/lib/store";
 
 export async function GET() {
-  const items = await getBannerItems();
-  return Response.json(items);
+  const config = await getBannerConfig();
+  if (!config) {
+    return Response.json({ items: DEFAULTS, updated_at: null });
+  }
+  return Response.json(config);
 }
 
 export async function POST(request) {
