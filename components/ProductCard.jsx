@@ -1,4 +1,5 @@
 import Link from "next/link";
+import AddToCartButton from "./AddToCartButton";
 
 export default function ProductCard({ product }) {
   return (
@@ -22,16 +23,14 @@ export default function ProductCard({ product }) {
           <Link href={`/product/${product.id}`}>{product.name}</Link>
         </h3>
 
-        <div className="flex items-center justify-between mt-auto pt-3">
-          <span className="text-base font-semibold text-text">
+        <div className="flex items-center gap-2 mt-auto pt-3">
+          <span className="text-base font-semibold text-text shrink-0">
             ₹{product.price}
           </span>
-          <Link
-            href={`/product/${product.id}`}
-            className="text-sm font-medium text-accent hover:text-primary transition-colors"
-          >
-            Details →
-          </Link>
+          <AddToCartButton
+            product={product}
+            className="ml-auto text-xs font-medium px-3.5 py-2 rounded-2xl bg-text text-background hover:opacity-90 transition-opacity active:scale-[0.97]"
+          />
         </div>
       </div>
     </div>

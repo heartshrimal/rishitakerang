@@ -1,6 +1,7 @@
 import Link from "next/link";
 import ImageGallery from "./ImageGallery";
 import CustomizeButton from "@/components/EnquireButton";
+import AddToCartButton from "@/components/AddToCartButton";
 import { getProductById, getAllCategories } from "@/lib/store";
 import { notFound } from "next/navigation";
 
@@ -70,12 +71,20 @@ export default async function ProductPage({ params }) {
           </div>
 
           <div className="flex gap-3 mt-6">
+            <AddToCartButton
+              product={product}
+              className="flex-1 rounded-2xl border-2 border-accent/30 py-4 text-accent font-medium text-sm hover:bg-accent/5 transition-colors active:scale-[0.98]"
+            >
+              + Add to Cart
+            </AddToCartButton>
             <Link
               href={`/payment?id=${product.id}&name=${encodeURIComponent(product.name)}&price=${product.price}`}
               className="flex-1 rounded-2xl bg-accent py-4 text-white font-medium text-sm text-center hover:opacity-90 transition-opacity active:scale-[0.98]"
             >
               Buy Now — ₹{product.price}
             </Link>
+          </div>
+          <div className="flex gap-3 mt-3">
             <CustomizeButton
               product={product}
               className="flex-1 rounded-2xl bg-text py-4 text-background font-medium text-sm hover:opacity-90 transition-opacity active:scale-[0.98]"

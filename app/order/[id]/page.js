@@ -101,13 +101,30 @@ export default function OrderPage() {
               <span className="text-text font-medium">Order ID:</span>{" "}
               {payment.id}
             </p>
-            <p>
-              <span className="text-text font-medium">Product:</span>{" "}
-              {payment.product_name}
-            </p>
+            {Array.isArray(payment.products) && payment.products.length > 0 ? (
+              <div>
+                <span className="text-text font-medium">Products:</span>
+                <div className="mt-1 space-y-1">
+                  {payment.products.map((p, i) => (
+                    <p key={i} className="pl-4">
+                      {p.name} × {p.quantity} — ₹{p.price * p.quantity}
+                    </p>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <p>
+                <span className="text-text font-medium">Product:</span>{" "}
+                {payment.product_name}
+              </p>
+            )}
             <p>
               <span className="text-text font-medium">Amount:</span> ₹
               {payment.product_price}
+            </p>
+            <p>
+              <span className="text-text font-medium">Shipping:</span> ₹
+              {payment.shipping || 0}
             </p>
             {payment.razorpay_payment_id ? (
               <p>

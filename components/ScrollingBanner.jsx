@@ -1,8 +1,10 @@
 'use client';
 
 import { useEffect, useRef, useState, useMemo } from 'react';
+import { usePathname } from 'next/navigation';
 
 export default function ScrollingBanner() {
+  const pathname = usePathname();
   const [items, setItems] = useState([]);
 
   useEffect(() => {
@@ -42,7 +44,7 @@ export default function ScrollingBanner() {
     return () => cancelAnimationFrame(rafId);
   }, [texts]);
 
-  if (!texts.length) return null;
+  if (pathname.startsWith('/admin') || !texts.length) return null;
 
   return (
     <div className="sticky top-15 z-40 w-full overflow-hidden bg-mlue/70 border-y border-mlue/20 py-2">

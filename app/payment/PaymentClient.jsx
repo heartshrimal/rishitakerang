@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
+import { useCart } from "@/lib/CartContext";
 
 function loadRazorpayScript() {
   return new Promise((resolve) => {
@@ -20,24 +21,34 @@ function loadRazorpayScript() {
 
 const SHIPPING = 100;
 
-export default function PaymentClient({ product }) {
+export default function PaymentClient({ product, isCart }) {
   const router = useRouter();
+  const { items: cartItems, subtotal: cartSubtotal, clearCart } = useCart();
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [address, setAddress] = useState("");
+  const [city, setCity] = useState("");
+  const [state, setState] = useState("");
+  const [pincode, setPincode] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [razorpayReady, setRazorpayReady] = useState(false);
 
-  const total = Number(product.price) + SHIPPING;
+  const singleShipping = product?.name === "Test Product" || Number(product?.price) <= 1 ? 0 : SHIPPING;
+  const cartShipping = cartItems.length === 0 ? 0 : cartSubtotal > 2000 ? 0 : SHIPPING;
+  const freeShipping = isCart && cartItems.length > 0 && cartSubtotal > 2000;
+
+  const shipping = isCart ? cartShipping : singleShipping;
+  const subtotal = isCart ? cartSubtotal : Number(product?.price || 0);
+  const total = subtotal + shipping;
 
   useEffect(() => {
     loadRazorpayScript().then(setRazorpayReady);
   }, []);
 
   async function handlePay() {
-    if (!name.trim() || !phone.trim() || !email.trim() || !address.trim()) {
+    if (!name.trim() || !phone.trim() || !email.trim() || !address.trim() || !city.trim() || !state.trim() || !pincode.trim()) {
       setError("Please fill in all fields");
       return;
     }
@@ -45,29 +56,50 @@ export default function PaymentClient({ product }) {
     setError("");
 
     try {
+      const body = isCart
+        ? {
+            cartItems: cartItems.map((i) => ({
+              id: i.id,
+              name: i.name,
+              price: i.price,
+              quantity: i.quantity,
+            })),
+            name: name.trim(),
+            phone: phone.trim(),
+            email: email.trim(),
+            address: `${address.trim()}, ${city.trim()}, ${state.trim()} - ${pincode.trim()}`,
+          }
+        : {
+            productId: product.id,
+            productName: product.name,
+            productPrice: product.price,
+            name: name.trim(),
+            phone: phone.trim(),
+            email: email.trim(),
+            address: `${address.trim()}, ${city.trim()}, ${state.trim()} - ${pincode.trim()}`,
+          };
+
       const res = await fetch("/api/razorpay/create-order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          productId: product.id,
-          productName: product.name,
-          productPrice: product.price,
-          name: name.trim(),
-          phone: phone.trim(),
-          email: email.trim(),
-          address: address.trim(),
-        }),
+        body: JSON.stringify(body),
       });
 
       if (!res.ok) throw new Error("Failed to create order");
       const data = await res.json();
+
+      if (data.amount === 0) {
+        if (isCart) clearCart();
+        router.push(`/order/${data.id}`);
+        return;
+      }
 
       const options = {
         key: data.razorpayKeyId,
         amount: data.amount,
         currency: "INR",
         name: "Rishita Ke Rang",
-        description: product.name,
+        description: isCart ? `Cart (${cartItems.length} items)` : product.name,
         image: "/favicon.ico",
         order_id: data.razorpayOrderId,
         prefill: {
@@ -89,6 +121,7 @@ export default function PaymentClient({ product }) {
           });
 
           if (verifyRes.ok) {
+            if (isCart) clearCart();
             router.push(`/order/${data.id}`);
           } else {
             setError("Payment verification failed. Contact support.");
@@ -119,10 +152,10 @@ export default function PaymentClient({ product }) {
       <header className="px-5 pt-6 pb-4">
         <div className="max-w-lg mx-auto">
           <Link
-            href={`/product/${product.id}`}
+            href={isCart ? "/cart" : `/product/${product.id}`}
             className="inline-block text-xs text-muted hover:text-text transition-colors mb-5 uppercase tracking-wider"
           >
-            ← Back to product
+            ← Back to {isCart ? "cart" : "product"}
           </Link>
         </div>
       </header>
@@ -136,39 +169,82 @@ export default function PaymentClient({ product }) {
             <div className="w-8 h-[2px] bg-accent/30 mx-auto mt-3" />
           </div>
 
-          {product.image && (
-            <div className="w-32 h-32 mx-auto rounded-2xl overflow-hidden bg-soft border border-border">
-              <img
-                src={product.image}
-                alt={product.name}
-                className="w-full h-full object-cover"
-              />
+          {isCart ? (
+            <div className="space-y-2">
+              {cartItems.map((item) => (
+                <div
+                  key={item.id}
+                  className="flex items-center gap-3 rounded-2xl bg-soft border border-border p-3"
+                >
+                  {item.image && (
+                    <div className="w-12 h-12 shrink-0 rounded-lg overflow-hidden bg-background">
+                      <img
+                        src={item.image}
+                        alt={item.name}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-text line-clamp-1">
+                      {item.name}
+                    </p>
+                    <p className="text-xs text-muted">
+                      {item.quantity} × ₹{item.price}
+                    </p>
+                  </div>
+                  <p className="text-sm font-semibold text-text shrink-0">
+                    ₹{item.price * item.quantity}
+                  </p>
+                </div>
+              ))}
             </div>
-          )}
+          ) : product ? (
+            <>
+              {product.image && (
+                <div className="w-32 h-32 mx-auto rounded-2xl overflow-hidden bg-soft border border-border">
+                  <img
+                    src={product.image}
+                    alt={product.name}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              )}
 
-          <div className="text-center">
-            <p className="text-sm text-muted uppercase tracking-wider">
-              {product.category}
-            </p>
-            <p className="font-display text-xl text-text mt-1">
-              {product.name}
-            </p>
-            <p className="text-2xl font-semibold text-text mt-2">
-              ₹{product.price}
-            </p>
-          </div>
+              <div className="text-center">
+                <p className="text-sm text-muted uppercase tracking-wider">
+                  {product.category}
+                </p>
+                <p className="font-display text-xl text-text mt-1">
+                  {product.name}
+                </p>
+                <p className="text-2xl font-semibold text-text mt-2">
+                  ₹{product.price}
+                </p>
+              </div>
+            </>
+          ) : null}
 
           <div className="rounded-2xl bg-soft border border-border p-6 space-y-3">
             <h2 className="text-sm font-semibold text-text uppercase tracking-wider text-center">
               Order Summary
             </h2>
             <div className="flex justify-between text-sm text-muted">
-              <span>Subtotal</span>
-              <span>₹{product.price}</span>
+              <span>Subtotal{isCart ? ` (${cartItems.reduce((s, i) => s + i.quantity, 0)} items)` : ""}</span>
+              <span>₹{subtotal}</span>
             </div>
             <div className="flex justify-between text-sm text-muted">
               <span>Shipping</span>
-              <span>₹{SHIPPING}</span>
+              <span>
+                {freeShipping ? (
+                  <>
+                    <span className="line-through">₹100</span>{" "}
+                    <span className="text-green-600 font-medium">Free</span>
+                  </>
+                ) : (
+                  <>₹{shipping}</>
+                )}
+              </span>
             </div>
             <div className="border-t border-border pt-3 flex justify-between text-base font-semibold text-text">
               <span>Total</span>
@@ -222,14 +298,54 @@ export default function PaymentClient({ product }) {
 
             <div>
               <label className="block text-xs font-semibold text-text uppercase tracking-wider mb-2">
-                Delivery Address
+                Address
               </label>
               <textarea
                 value={address}
                 onChange={(e) => setAddress(e.target.value)}
-                placeholder="Full address with pincode"
-                rows={3}
+                placeholder="Street, locality, building"
+                rows={2}
                 className="w-full rounded-2xl border border-border bg-background px-4 py-3 text-sm text-text placeholder:text-muted/40 focus:outline-none focus:ring-2 focus:ring-accent/30 transition-all resize-none"
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-semibold text-text uppercase tracking-wider mb-2">
+                  City
+                </label>
+                <input
+                  type="text"
+                  value={city}
+                  onChange={(e) => setCity(e.target.value)}
+                  placeholder="City"
+                  className="w-full rounded-2xl border border-border bg-background px-4 py-3 text-sm text-text placeholder:text-muted/40 focus:outline-none focus:ring-2 focus:ring-accent/30 transition-all"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-text uppercase tracking-wider mb-2">
+                  State
+                </label>
+                <input
+                  type="text"
+                  value={state}
+                  onChange={(e) => setState(e.target.value)}
+                  placeholder="State"
+                  className="w-full rounded-2xl border border-border bg-background px-4 py-3 text-sm text-text placeholder:text-muted/40 focus:outline-none focus:ring-2 focus:ring-accent/30 transition-all"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-text uppercase tracking-wider mb-2">
+                Pincode
+              </label>
+              <input
+                type="text"
+                value={pincode}
+                onChange={(e) => setPincode(e.target.value)}
+                placeholder="6-digit pincode"
+                className="w-full rounded-2xl border border-border bg-background px-4 py-3 text-sm text-text placeholder:text-muted/40 focus:outline-none focus:ring-2 focus:ring-accent/30 transition-all"
               />
             </div>
 

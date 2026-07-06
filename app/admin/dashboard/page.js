@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { Menu, X, Plus, List, CreditCard, ShoppingBag, FolderTree, Image } from "lucide-react";
 
 function ImageUploader({ images, setImages }) {
   const [uploading, setUploading] = useState(false);
@@ -331,8 +332,8 @@ function ProductForm({ categories: cats, onProductAdded, editProduct, onEditDone
             onChange={(e) => setFeatured(e.target.checked)}
             className="sr-only"
           />
-          <div className={`w-10 h-6 rounded-full transition-colors ${featured ? "bg-accent" : "bg-border"}`}>
-            <div className={`w-5 h-5 rounded-full bg-white shadow-sm transition-transform mt-0.5 ${featured ? "translate-x-[18px]" : "translate-x-0.5"}`} />
+          <div className={`w-10 h-6 rounded-full transition-colors flex items-center p-0.5 ${featured ? "bg-accent justify-end" : "bg-border justify-start"}`}>
+            <div className="w-5 h-5 rounded-full bg-white shadow-sm transition-all" />
           </div>
         </div>
         <span className="text-sm text-text">Show in Featured Creations</span>
@@ -780,6 +781,7 @@ export default function AdminDashboard() {
   const [categories, setCategories] = useState([]);
   const [tab, setTab] = useState("product");
   const [editingProduct, setEditingProduct] = useState(null);
+  const [menuOpen, setMenuOpen] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -835,7 +837,7 @@ export default function AdminDashboard() {
 
   if (checking) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
+      <div className="min-h-screen flex items-center justify-center">
         <p className="text-muted text-sm">Checking...</p>
       </div>
     );
@@ -844,44 +846,95 @@ export default function AdminDashboard() {
   if (!authed) return null;
 
   return (
-    <div className="min-h-screen bg-background">
-      <nav className="sticky top-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border">
+    <div className="min-h-screen">
+      <nav className="bg-background/80 border-b border-border">
         <div className="max-w-lg mx-auto flex h-16 items-center justify-between px-5">
           <h1 className="font-display text-lg text-text">Dashboard</h1>
-          <button
-            onClick={handleLogout}
-            className="text-sm text-muted hover:text-text transition-colors"
-          >
-            Sign Out
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleLogout}
+              className="text-sm text-muted hover:text-text transition-colors"
+            >
+              Sign Out
+            </button>
+            <button
+              onClick={() => setMenuOpen(true)}
+              className="flex items-center justify-center w-10 h-10 rounded-xl bg-soft text-muted hover:bg-border transition-colors"
+            >
+              <Menu size={20} />
+            </button>
+          </div>
         </div>
       </nav>
 
-      <div className="max-w-lg mx-auto px-5 pt-6 pb-20">
-        <div className="flex gap-2 mb-8">
-          {["product", "manage", "payments", "orders", "category", "banner"].map((t) => (
+      <div
+        className={`fixed inset-0 z-50 transition-all duration-400 ${
+          menuOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+        }`}
+      >
+        <div
+          className="absolute inset-0 bg-black/20 backdrop-blur-sm"
+          onClick={() => setMenuOpen(false)}
+        />
+        <div
+          className={`absolute top-0 right-0 h-full w-72 bg-background shadow-2xl transition-transform duration-400 ease-out flex flex-col ${
+            menuOpen ? "translate-x-0" : "translate-x-full"
+          }`}
+        >
+          <div className="shrink-0 h-32 bg-gradient-to-br from-primary/30 via-accent/20 to-secondary/25 flex flex-col justify-end px-6 pb-5">
             <button
-              key={t}
-              onClick={() => {
-                if (t === "product" && editingProduct) setEditingProduct(null);
-                setTab(t);
-              }}
-              className={`flex-1 py-2.5 rounded-xl text-sm font-medium transition-colors ${
-                tab === t
-                  ? "bg-text text-background"
-                  : "bg-surface text-muted border border-border"
-              }`}
+              onClick={() => setMenuOpen(false)}
+              className="absolute top-4 right-4 flex items-center justify-center w-9 h-9 rounded-full bg-white/20 backdrop-blur-sm text-white hover:bg-white/30 transition-colors"
             >
-              {t === "product"
-                ? editingProduct ? "Edit" : "Add"
-                : t === "manage" ? "Manage"
-                : t === "payments" ? "Payments"
-                : t === "orders" ? "Orders"
-                : t === "category" ? "Category"
-                : "Banner"}
+              <X size={18} />
             </button>
-          ))}
+            <p className="font-script text-3xl text-white drop-shadow-sm">
+              Rishita Ke Rang
+            </p>
+            <p className="text-sm text-white/80 mt-1 font-medium">Admin</p>
+          </div>
+
+          <div className="flex-1 overflow-y-auto p-5 space-y-1">
+            {[
+              { id: "product", label: editingProduct ? "Edit Product" : "Add Product", icon: Plus },
+              { id: "manage", label: "Manage Products", icon: List },
+              { id: "payments", label: "Payments", icon: CreditCard },
+              { id: "orders", label: "Orders", icon: ShoppingBag },
+              { id: "category", label: "Categories", icon: FolderTree },
+              { id: "banner", label: "Banner", icon: Image },
+            ].map(({ id, label, icon: Icon }) => (
+              <button
+                key={id}
+                onClick={() => {
+                  if (id === "product" && editingProduct) setEditingProduct(null);
+                  setTab(id);
+                  setMenuOpen(false);
+                }}
+                className={`flex items-center gap-3 w-full rounded-2xl px-4 py-3.5 text-sm font-medium transition-colors ${
+                  tab === id
+                    ? "bg-text text-background"
+                    : "text-text hover:bg-soft"
+                }`}
+              >
+                <span className={`flex items-center justify-center w-8 h-8 rounded-xl ${
+                  tab === id ? "bg-white/20" : "bg-soft text-muted"
+                }`}>
+                  <Icon size={16} />
+                </span>
+                {label}
+              </button>
+            ))}
+          </div>
+
+          <div className="shrink-0 p-5 border-t border-border">
+            <p className="text-center text-[10px] uppercase tracking-[0.15em] text-muted/40">
+              Admin Dashboard
+            </p>
+          </div>
         </div>
+      </div>
+
+      <div className="max-w-lg mx-auto px-5 pt-6 pb-20">
 
         {tab === "product" && (
           <ProductForm

@@ -3,6 +3,7 @@ import Navbar from "@/components/Navbar";
 import SplashWrapper from "@/components/SplashWrapper";
 import Background from "@/components/Background";
 import ScrollingBanner from "@/components/ScrollingBanner";
+import { CartProvider } from "@/lib/CartContext";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -35,9 +36,11 @@ export default function RootLayout({ children }) {
       <body className="relative min-h-full flex flex-col">
         <Background />
         <SplashWrapper>
-          <Navbar />
-          <ScrollingBanner />
-          {children}
+          <CartProvider>
+            <Navbar />
+            <ScrollingBanner />
+            {children}
+          </CartProvider>
         </SplashWrapper>
       </body>
     </html>

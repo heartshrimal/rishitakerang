@@ -1,12 +1,20 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Menu, X, Home, User, Mail, CreditCard, Search } from "lucide-react";
+import { Menu, X, Home, User, Mail, CreditCard, Search, ShoppingCart } from "lucide-react";
 import { categories } from "@/data/products";
+import { useCart } from "@/lib/CartContext";
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
+  const [pathname, setPathname] = useState("");
+
+  useEffect(() => {
+    setPathname(window.location.pathname);
+  }, []);
+
+  if (pathname.startsWith("/admin")) return null;
 
   return (
     <>
@@ -15,7 +23,8 @@ export default function Navbar() {
           <Link href="/" className="font-script text-2xl tracking-wide text-white">
             Rishita Ke Rang
           </Link>
-          <div className="flex items-center">
+          <div className="flex items-center gap-2">
+            <CartIcon />
             <button
               onClick={() => setOpen(true)}
               className="flex items-center justify-center w-10 h-10 rounded-xl bg-white/15 text-white/80 hover:bg-white/25 transition-colors"
@@ -102,14 +111,14 @@ export default function Navbar() {
             </Link>
 
             <Link
-              href="/payment"
+              href="/cart"
               onClick={() => setOpen(false)}
               className="flex items-center gap-3 w-full rounded-2xl px-4 py-3.5 text-sm font-medium text-text hover:bg-soft transition-colors"
             >
               <span className="flex items-center justify-center w-8 h-8 rounded-xl bg-soft text-muted">
-                <CreditCard size={16} />
+                <ShoppingCart size={16} />
               </span>
-              Checkout
+              Cart
             </Link>
 
             <div className="flex items-center gap-3 mt-6 mb-3 px-4">
@@ -148,5 +157,23 @@ export default function Navbar() {
         </div>
       </div>
     </>
+  );
+}
+
+function CartIcon() {
+  const { totalItems } = useCart();
+
+  return (
+    <Link
+      href="/cart"
+      className="relative flex items-center justify-center w-10 h-10 rounded-xl bg-white/15 text-white/80 hover:bg-white/25 transition-colors"
+    >
+      <ShoppingCart size={20} />
+      {totalItems > 0 && (
+        <span className="absolute -top-1 -right-1 flex items-center justify-center w-5 h-5 rounded-full bg-accent text-white text-[10px] font-bold leading-none">
+          {totalItems > 9 ? "9+" : totalItems}
+        </span>
+      )}
+    </Link>
   );
 }
