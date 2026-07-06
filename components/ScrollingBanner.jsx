@@ -45,7 +45,7 @@ export default function ScrollingBanner() {
   if (!texts.length) return null;
 
   return (
-    <div className="sticky top-15 z-40 w-full overflow-hidden bg-mlue border-y border-mlue/20 py-2">
+    <div className="sticky top-15 z-40 w-full overflow-hidden bg-mlue/70 border-y border-mlue/20 py-2">
       <div ref={trackRef} className="flex whitespace-nowrap will-change-transform">
         {copies.map((text, i) => (
           <span key={i} className="text-xs font-medium text-text/70 tracking-wide shrink-0 mr-12">
