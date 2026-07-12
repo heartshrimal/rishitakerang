@@ -926,6 +926,15 @@ export default function AdminDashboard() {
       .then(setCategories);
   }, [authed]);
 
+  useEffect(() => {
+    if (menuOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => { document.body.style.overflow = ""; };
+  }, [menuOpen]);
+
   function handleLogout() {
     localStorage.removeItem("admin_token");
     router.replace("/admin/login");
