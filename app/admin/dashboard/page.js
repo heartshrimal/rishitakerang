@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Menu, X, Plus, List, CreditCard, ShoppingBag, FolderTree, Image } from "lucide-react";
+import { Menu, X, Plus, List, CreditCard, ShoppingBag, FolderTree, Image, Key } from "lucide-react";
 
 function ImageUploader({ images, setImages }) {
   const [uploading, setUploading] = useState(false);
@@ -687,6 +687,111 @@ function OrdersView() {
   );
 }
 
+function ChangePassword() {
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirm, setConfirm] = useState("");
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+    setError("");
+    setSuccess("");
+
+    if (newPassword !== confirm) {
+      setError("New passwords don't match");
+      return;
+    }
+
+    if (newPassword.length < 6) {
+      setError("New password must be at least 6 characters");
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const token = localStorage.getItem("admin_token");
+      const res = await fetch("/api/auth/change-password", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ currentPassword, newPassword }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.error || "Failed to change password");
+        return;
+      }
+
+      setSuccess("Password changed successfully!");
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirm("");
+    } catch {
+      setError("Something went wrong");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-5">
+      <div className="space-y-2">
+        <label className="text-sm font-medium text-text">Current Password</label>
+        <input
+          type="password"
+          value={currentPassword}
+          onChange={(e) => setCurrentPassword(e.target.value)}
+          className="w-full rounded-xl border border-border bg-surface px-4 py-3 text-sm text-text outline-none focus:border-accent transition-colors"
+          required
+        />
+      </div>
+
+      <div className="space-y-2">
+        <label className="text-sm font-medium text-text">New Password</label>
+        <input
+          type="password"
+          value={newPassword}
+          onChange={(e) => setNewPassword(e.target.value)}
+          className="w-full rounded-xl border border-border bg-surface px-4 py-3 text-sm text-text outline-none focus:border-accent transition-colors"
+          required
+          minLength={6}
+        />
+      </div>
+
+      <div className="space-y-2">
+        <label className="text-sm font-medium text-text">Confirm New Password</label>
+        <input
+          type="password"
+          value={confirm}
+          onChange={(e) => setConfirm(e.target.value)}
+          className="w-full rounded-xl border border-border bg-surface px-4 py-3 text-sm text-text outline-none focus:border-accent transition-colors"
+          required
+          minLength={6}
+        />
+      </div>
+
+      {error && <p className="text-sm text-red-500">{error}</p>}
+      {success && <p className="text-sm text-green-600">{success}</p>}
+
+      <button
+        type="submit"
+        disabled={loading}
+        className="w-full rounded-2xl bg-text py-3.5 text-background font-medium text-sm hover:opacity-90 transition-opacity disabled:opacity-50"
+      >
+        {loading ? "Changing..." : "Change Password"}
+      </button>
+    </form>
+  );
+}
+
 function BannerEditor() {
   const [items, setItems] = useState([]);
   const [saving, setSaving] = useState(false);
@@ -788,7 +893,7 @@ export default function AdminDashboard() {
     async function check() {
       const token = localStorage.getItem("admin_token");
       if (!token) {
-        router.replace("/admin");
+        router.replace("/admin/login");
         return;
       }
 
@@ -799,13 +904,13 @@ export default function AdminDashboard() {
 
         if (!res.ok) {
           localStorage.removeItem("admin_token");
-          router.replace("/admin");
+          router.replace("/admin/login");
           return;
         }
 
         setAuthed(true);
       } catch {
-        router.replace("/admin");
+        router.replace("/admin/login");
       } finally {
         setChecking(false);
       }
@@ -823,7 +928,7 @@ export default function AdminDashboard() {
 
   function handleLogout() {
     localStorage.removeItem("admin_token");
-    router.replace("/admin");
+    router.replace("/admin/login");
   }
 
   function handleEdit(product) {
@@ -902,6 +1007,7 @@ export default function AdminDashboard() {
               { id: "orders", label: "Orders", icon: ShoppingBag },
               { id: "category", label: "Categories", icon: FolderTree },
               { id: "banner", label: "Banner", icon: Image },
+              { id: "password", label: "Change Password", icon: Key },
             ].map(({ id, label, icon: Icon }) => (
               <button
                 key={id}
@@ -976,6 +1082,8 @@ export default function AdminDashboard() {
         )}
 
         {tab === "banner" && <BannerEditor />}
+
+        {tab === "password" && <ChangePassword />}
       </div>
     </div>
   );
