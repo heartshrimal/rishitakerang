@@ -33,6 +33,7 @@ export async function PUT(request, { params }) {
     if (body.description !== undefined) updated.description = body.description;
     if (body.details !== undefined) updated.details = body.details;
     if (body.featured !== undefined) updated.featured = body.featured;
+    if (body.keywords !== undefined) updated.keywords = body.keywords;
 
     const product = await updateProduct(id, updated);
     return Response.json(product);

@@ -4,6 +4,20 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useState, useEffect, useCallback } from "react";
 
+const TRACKING_STEPS = [
+  { key: "pending", label: "Order Placed", icon: "📋" },
+  { key: "in_the_making", label: "In the Making", icon: "🎨" },
+  { key: "shipped", label: "Shipped", icon: "📦" },
+  { key: "delivered", label: "Delivered", icon: "🎉" },
+];
+
+const STATUS_INDEX = {
+  pending: 0,
+  in_the_making: 1,
+  shipped: 2,
+  delivered: 3,
+};
+
 export default function OrderPage() {
   const { id } = useParams();
   const [payment, setPayment] = useState(null);
@@ -61,40 +75,103 @@ export default function OrderPage() {
     );
   }
 
-  const confirmed = payment.status === "confirmed";
+  const isCancelled = payment.status === "cancelled";
+  const currentIndex = STATUS_INDEX[payment.status] ?? 0;
 
   return (
     <section className="px-5 pt-12 pb-20">
       <div className="max-w-lg mx-auto text-center space-y-6">
-        <h1 className="font-script text-4xl text-text">Order Status</h1>
+        <h1 className="font-script text-4xl text-text">Order Tracking</h1>
         <div className="w-8 h-[2px] bg-accent/30 mx-auto" />
 
         <div
-          className={`rounded-2xl border p-8 ${
-            confirmed
+          className={`rounded-2xl border p-6 ${
+            isCancelled
+              ? "bg-red-50 border-red-200"
+              : payment.status === "delivered"
               ? "bg-green-50 border-green-200"
               : "bg-soft border-border"
           }`}
         >
-          <div
-            className={`w-16 h-16 rounded-full flex items-center justify-center mx-auto text-3xl ${
-              confirmed
-                ? "bg-green-100 text-green-600"
-                : "bg-yellow-100 text-yellow-600"
-            }`}
-          >
-            {confirmed ? "✓" : "⏳"}
-          </div>
+          {isCancelled ? (
+            <div className="space-y-3">
+              <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto text-3xl bg-red-100 text-red-600">
+                ✕
+              </div>
+              <h2 className="font-script text-2xl text-text">Order Cancelled</h2>
+              <p className="text-sm text-muted">This order has been cancelled.</p>
+            </div>
+          ) : (
+            <>
+              <div className="flex items-center justify-between mb-6">
+                {TRACKING_STEPS.map((step, i) => {
+                  const reached = i <= currentIndex;
+                  return (
+                    <div key={step.key} className="flex flex-col items-center flex-1">
+                      <div
+                        className={`w-10 h-10 rounded-full flex items-center justify-center text-lg border-2 transition-all ${
+                          reached
+                            ? "bg-text border-text text-background"
+                            : "bg-surface border-border text-muted/40"
+                        }`}
+                      >
+                        {reached && i < currentIndex ? "✓" : step.icon}
+                      </div>
+                      <p
+                        className={`text-[10px] mt-1.5 font-medium leading-tight text-center ${
+                          reached ? "text-text" : "text-muted/40"
+                        }`}
+                      >
+                        {step.label}
+                      </p>
+                      {i < TRACKING_STEPS.length - 1 && (
+                        <div
+                          className={`absolute h-[2px] w-full ${
+                            i < currentIndex ? "bg-text" : "bg-border"
+                          }`}
+                          style={{ display: "none" }}
+                        />
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
 
-          <h2 className="font-script text-2xl text-text mt-4">
-            {confirmed ? "Payment Confirmed!" : "Payment Pending"}
-          </h2>
+              <div className="flex items-center gap-1 mx-auto mb-4">
+                {TRACKING_STEPS.map((step, i) => (
+                  <div
+                    key={step.key}
+                    className={`h-1 flex-1 rounded-full transition-colors ${
+                      i < currentIndex
+                        ? "bg-text"
+                        : i === currentIndex
+                        ? "bg-text/40"
+                        : "bg-border"
+                    }`}
+                  />
+                ))}
+              </div>
 
-          <p className="text-sm text-muted mt-2 leading-relaxed">
-            {confirmed
-              ? "Your payment has been verified. Thank you for your order!"
-              : "We're verifying your payment. This page refreshes automatically."}
-          </p>
+              <h2 className="font-script text-2xl text-text">
+                {payment.status === "in_the_making"
+                  ? "We're Making This For You!"
+                  : payment.status === "shipped"
+                  ? "Your Order is On Its Way!"
+                  : payment.status === "delivered"
+                  ? "Delivered!"
+                  : "Payment Confirmed!"}
+              </h2>
+              <p className="text-sm text-muted mt-2 leading-relaxed">
+                {payment.status === "in_the_making"
+                  ? "Your handmade item is being crafted with care. We'll ship it soon!"
+                  : payment.status === "shipped"
+                  ? "Your order has been shipped. It should reach you soon!"
+                  : payment.status === "delivered"
+                  ? "Your order has been delivered. We hope you love it!"
+                  : "Your payment has been verified and your order is confirmed."}
+              </p>
+            </>
+          )}
 
           <div className="bg-white rounded-xl p-4 mt-5 text-left space-y-1 text-sm text-muted">
             <p>
@@ -144,9 +221,9 @@ export default function OrderPage() {
           </div>
         </div>
 
-        {!confirmed && (
+        {payment.status !== "delivered" && payment.status !== "cancelled" && (
           <p className="text-xs text-muted/60 animate-pulse">
-            Auto-checking for confirmation every 10s...
+            Auto-refreshing every 10s...
           </p>
         )}
 

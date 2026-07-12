@@ -1,7 +1,20 @@
 export const metadata = {
-  title: "About — Rishita Ke Rang",
+  title: "About",
   description:
-    "Learn the story behind Rishita Ke Rang — handcrafted clay art made with love, patience, and a whole lot of heart.",
+    "Learn the story behind Rishita Ke Rang — a handmade polymer clay art brand. Hand-sculpted charms, earrings, keychains and frames, each made with love in India.",
+  keywords: [
+    "rishita ke rang about",
+    "rishitakerang story",
+    "handmade clay art india",
+    "polymer clay artist",
+    "about rishita ke rang",
+    "clay art brand india",
+  ],
+  openGraph: {
+    title: "About — Rishita Ke Rang",
+    description:
+      "The story behind Rishita Ke Rang — handcrafted clay art made with love, patience, and a whole lot of heart.",
+  },
 };
 
 export default function AboutPage() {

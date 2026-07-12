@@ -15,7 +15,10 @@ export async function GET(request, { params }) {
 export async function PATCH(request, { params }) {
   try {
     const { id } = await params;
-    const payment = await updatePayment(id, { status: "confirmed" });
+    const body = await request.json().catch(() => ({}));
+    const status = body.status || "in_the_making";
+
+    const payment = await updatePayment(id, { status });
 
     sendAdminNotification(payment);
 

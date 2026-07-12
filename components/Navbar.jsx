@@ -24,6 +24,12 @@ export default function Navbar() {
             Rishita Ke Rang
           </Link>
           <div className="flex items-center gap-2">
+            <Link
+              href="/shop"
+              className="flex items-center justify-center w-10 h-10 rounded-xl bg-white/15 text-white/80 hover:bg-white/25 transition-colors"
+            >
+              <Search size={20} />
+            </Link>
             <CartIcon />
             <button
               onClick={() => setOpen(true)}
@@ -75,6 +81,17 @@ export default function Navbar() {
                 <Home size={16} />
               </span>
               Home
+            </Link>
+
+            <Link
+              href="/shop"
+              onClick={() => setOpen(false)}
+              className="flex items-center gap-3 w-full rounded-2xl px-4 py-3.5 text-sm font-medium text-text hover:bg-soft transition-colors"
+            >
+              <span className="flex items-center justify-center w-8 h-8 rounded-xl bg-soft text-muted">
+                <Search size={16} />
+              </span>
+              Shop All
             </Link>
 
             <Link

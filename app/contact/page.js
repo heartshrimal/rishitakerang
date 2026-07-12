@@ -1,7 +1,20 @@
 export const metadata = {
-  title: "Contact — Rishita Ke Rang",
+  title: "Contact",
   description:
-    "Get in touch with Rishita Ke Rang for custom orders, enquiries, or just to say hello.",
+    "Get in touch with Rishita Ke Rang for custom clay orders, bulk enquiries, collaborations, or just to say hello. DM us on Instagram @rishita.ke.rang.",
+  keywords: [
+    "rishita ke rang contact",
+    "rishita ke rang instagram",
+    "custom clay order india",
+    "bulk clay order",
+    "clay art enquiry",
+    "rishitakerang contact",
+  ],
+  openGraph: {
+    title: "Contact — Rishita Ke Rang",
+    description:
+      "Get in touch for custom clay orders, bulk enquiries, or collaborations.",
+  },
 };
 
 export default function ContactPage() {

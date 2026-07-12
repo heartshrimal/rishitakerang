@@ -163,6 +163,7 @@ function ProductForm({ categories: cats, onProductAdded, editProduct, onEditDone
   const [images, setImages] = useState(editProduct?.images || []);
   const [details, setDetails] = useState(editProduct?.details?.length ? editProduct.details : [""]);
   const [featured, setFeatured] = useState(editProduct?.featured || false);
+  const [keywords, setKeywords] = useState(editProduct?.keywords?.length ? editProduct.keywords.join(", ") : "");
   const [saving, setSaving] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
 
@@ -195,6 +196,10 @@ function ProductForm({ categories: cats, onProductAdded, editProduct, onEditDone
       description,
       details: details.filter(Boolean),
       featured,
+      keywords: keywords
+        .split(",")
+        .map((k) => k.trim())
+        .filter(Boolean),
     };
 
     try {
@@ -216,6 +221,7 @@ function ProductForm({ categories: cats, onProductAdded, editProduct, onEditDone
         setDescription("");
         setImages([]);
         setDetails([""]);
+        setKeywords("");
         setShowPreview(false);
         onProductAdded?.();
         if (isEditing) onEditDone?.();
@@ -323,6 +329,18 @@ function ProductForm({ categories: cats, onProductAdded, editProduct, onEditDone
       </div>
 
       <DetailInput details={details} setDetails={setDetails} />
+
+      <div className="space-y-2">
+        <label className="text-sm font-medium text-text">SEO Keywords</label>
+        <textarea
+          value={keywords}
+          onChange={(e) => setKeywords(e.target.value)}
+          rows={2}
+          placeholder="clay bag charm, custom keychain, handmade gift"
+          className="w-full rounded-xl border border-border bg-surface px-4 py-3 text-sm text-text outline-none focus:border-accent transition-colors resize-none placeholder:text-muted/40"
+        />
+        <p className="text-[10px] text-muted/60">Comma-separated. These help your product show up in Google search.</p>
+      </div>
 
       <label className="flex items-center gap-3 cursor-pointer">
         <div className="relative">
@@ -569,7 +587,11 @@ function PaymentsView() {
   async function handleConfirm(id) {
     setConfirming(id);
     try {
-      const res = await fetch(`/api/payments/${id}`, { method: "PATCH" });
+      const res = await fetch(`/api/payments/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: "in_the_making" }),
+      });
       if (res.ok) {
         setPayments((prev) => prev.filter((p) => p.id !== id));
       }
@@ -623,7 +645,7 @@ function PaymentsView() {
             disabled={confirming === p.id}
             className="w-full rounded-xl bg-green-600 py-2.5 text-white text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-50"
           >
-            {confirming === p.id ? "..." : "✓ Mark Confirmed"}
+            {confirming === p.id ? "..." : "✓ Confirm Payment & Start Making"}
           </button>
         </div>
       ))}
@@ -631,16 +653,45 @@ function PaymentsView() {
   );
 }
 
+const ORDER_STATUSES = [
+  { value: "in_the_making", label: "In the Making", color: "bg-amber-100 text-amber-700" },
+  { value: "shipped", label: "Shipped", color: "bg-blue-100 text-blue-700" },
+  { value: "delivered", label: "Delivered", color: "bg-green-100 text-green-700" },
+  { value: "cancelled", label: "Cancelled", color: "bg-red-100 text-red-700" },
+];
+
 function OrdersView() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [updating, setUpdating] = useState(null);
 
   useEffect(() => {
     fetch("/api/payments")
       .then((r) => r.json())
-      .then((all) => setOrders(all.filter((p) => p.status === "confirmed")))
+      .then((all) =>
+        setOrders(all.filter((p) => p.status !== "pending"))
+      )
       .finally(() => setLoading(false));
   }, []);
+
+  async function handleStatusChange(id, newStatus) {
+    setUpdating(id);
+    try {
+      const res = await fetch(`/api/payments/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: newStatus }),
+      });
+      if (res.ok) {
+        setOrders((prev) =>
+          prev.map((o) => (o.id === id ? { ...o, status: newStatus } : o))
+        );
+      }
+    } catch {
+    } finally {
+      setUpdating(null);
+    }
+  }
 
   if (loading) {
     return <p className="text-sm text-muted text-center py-8">Loading...</p>;
@@ -649,40 +700,61 @@ function OrdersView() {
   if (orders.length === 0) {
     return (
       <p className="text-sm text-muted text-center py-8">
-        No confirmed orders yet.
+        No orders yet.
       </p>
     );
   }
 
   return (
     <div className="space-y-3">
-      {orders.map((o) => (
-        <div
-          key={o.id}
-          className="rounded-2xl bg-surface border border-border p-4 space-y-2"
-        >
-          <div className="flex items-center justify-between">
-            <p className="text-sm font-medium text-text">{o.name}</p>
-            <span className="text-xs bg-green-100 text-green-700 px-2.5 py-0.5 rounded-full font-medium">
-              Confirmed
-            </span>
+      {orders.map((o) => {
+        const statusInfo = ORDER_STATUSES.find((s) => s.value === o.status) || ORDER_STATUSES[0];
+        return (
+          <div
+            key={o.id}
+            className="rounded-2xl bg-surface border border-border p-4 space-y-3"
+          >
+            <div className="flex items-center justify-between">
+              <p className="text-sm font-medium text-text">{o.name}</p>
+              <span className={`text-xs px-2.5 py-0.5 rounded-full font-medium ${statusInfo.color}`}>
+                {statusInfo.label}
+              </span>
+            </div>
+            <p className="text-xs text-muted">
+              {o.product_name} · ₹{o.product_price}
+            </p>
+            <p className="text-xs text-muted">
+              Phone: {o.phone}
+              {o.razorpay_payment_id
+                ? ` · Razorpay: ${o.razorpay_payment_id}`
+                : o.utr
+                ? ` · UTR: ${o.utr}`
+                : ""}
+            </p>
+            <p className="text-xs text-muted/60">
+              {new Date(o.created_at).toLocaleString()}
+            </p>
+            <div className="flex items-center gap-2 pt-1">
+              <label className="text-xs text-muted font-medium shrink-0">Status:</label>
+              <select
+                value={o.status}
+                onChange={(e) => handleStatusChange(o.id, e.target.value)}
+                disabled={updating === o.id}
+                className="flex-1 rounded-xl border border-border bg-surface px-3 py-2 text-xs text-text outline-none focus:border-accent transition-colors disabled:opacity-50"
+              >
+                {ORDER_STATUSES.map((s) => (
+                  <option key={s.value} value={s.value}>
+                    {s.label}
+                  </option>
+                ))}
+              </select>
+              {updating === o.id && (
+                <span className="text-xs text-muted animate-pulse">Saving...</span>
+              )}
+            </div>
           </div>
-          <p className="text-xs text-muted">
-            {o.product_name} · ₹{o.product_price}
-          </p>
-          <p className="text-xs text-muted">
-            Phone: {o.phone}
-            {o.razorpay_payment_id
-              ? ` · Payment: ${o.razorpay_payment_id}`
-              : o.utr
-              ? ` · UTR: ${o.utr}`
-              : ""}
-          </p>
-          <p className="text-xs text-muted/60">
-            {new Date(o.created_at).toLocaleString()}
-          </p>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }

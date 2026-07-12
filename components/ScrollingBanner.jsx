@@ -33,9 +33,12 @@ export default function ScrollingBanner() {
 
     let offset = 0;
     let rafId;
+    let lastTime = performance.now();
 
-    function animate() {
-      offset -= 1.2;
+    function animate(now) {
+      const dt = Math.min((now - lastTime) / 1000, 0.1);
+      lastTime = now;
+      offset -= 120 * dt;
       track.style.transform = `translateX(${Math.round(offset)}px)`;
       rafId = requestAnimationFrame(animate);
     }

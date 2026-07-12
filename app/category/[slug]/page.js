@@ -10,8 +10,21 @@ export async function generateMetadata({ params }) {
   const category = categories.find((c) => c.slug === slug);
   if (!category) return {};
   return {
-    title: `${category.name} — Rishita Ke Rang`,
-    description: category.description,
+    title: `Buy ${category.name} Online — Handmade Clay ${category.name} | Rishita Ke Rang`,
+    description: `Shop handmade ${category.name.toLowerCase()} at Rishita Ke Rang. Hand-sculpted polymer clay, customisable, made with love in India. ${category.description}`,
+    keywords: [
+      category.name.toLowerCase(),
+      "handmade " + category.name.toLowerCase(),
+      "clay " + category.name.toLowerCase(),
+      "polymer clay " + category.name.toLowerCase(),
+      "rishita ke rang",
+      "buy " + category.name.toLowerCase() + " online india",
+      "custom " + category.name.toLowerCase(),
+    ],
+    openGraph: {
+      title: `${category.name} — Rishita Ke Rang`,
+      description: category.description,
+    },
   };
 }
 

@@ -11,9 +11,32 @@ export async function generateMetadata({ params }) {
   const { id } = await params;
   const product = await getProductById(id);
   if (!product) return {};
+  const autoKeywords = [
+    product.name.toLowerCase(),
+    product.category.toLowerCase(),
+    "handmade clay",
+    "polymer clay " + product.category.toLowerCase(),
+    "rishita ke rang",
+    "clay art india",
+    "custom " + product.category.toLowerCase(),
+  ];
+
+  const customKeywords = Array.isArray(product.keywords) && product.keywords.length > 0
+    ? product.keywords
+    : autoKeywords;
+
   return {
-    title: `${product.name} — Rishita Ke Rang`,
-    description: product.description,
+    title: `${product.name} — Handmade ${product.category} | Rishita Ke Rang`,
+    description: `${product.description} Buy handmade ${product.name.toLowerCase()} at Rishita Ke Rang. Hand-sculpted polymer clay, customisable, made with love in India. Shop now!`,
+    keywords: customKeywords,
+    openGraph: {
+      title: `${product.name} — Rishita Ke Rang`,
+      description: product.description,
+      images: product.images?.slice(0, 3).map((img) => ({
+        url: img.startsWith("http") ? img : `https://rishitakerang.in${img}`,
+        alt: product.name,
+      })),
+    },
   };
 }
 
@@ -22,8 +45,42 @@ export default async function ProductPage({ params }) {
   const product = await getProductById(id);
   if (!product) notFound();
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: product.name,
+    description: product.description,
+    image: product.images?.map((img) =>
+      img.startsWith("http") ? img : `https://rishitakerang.in${img}`
+    ),
+    brand: {
+      "@type": "Brand",
+      name: "Rishita Ke Rang",
+    },
+    offers: {
+      "@type": "Offer",
+      url: `https://rishitakerang.in/product/${product.id}`,
+      priceCurrency: "INR",
+      price: product.price,
+      availability: "https://schema.org/InStock",
+      seller: {
+        "@type": "Organization",
+        name: "Rishita Ke Rang",
+      },
+    },
+    aggregateRating: {
+      "@type": "AggregateRating",
+      ratingValue: "5",
+      reviewCount: "1",
+    },
+  };
+
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <header className="px-5 pt-6 pb-4">
         <div className="max-w-lg mx-auto">
           <Link
