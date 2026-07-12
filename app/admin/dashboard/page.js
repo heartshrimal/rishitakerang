@@ -163,7 +163,6 @@ function ProductForm({ categories: cats, onProductAdded, editProduct, onEditDone
   const [images, setImages] = useState(editProduct?.images || []);
   const [details, setDetails] = useState(editProduct?.details?.length ? editProduct.details : [""]);
   const [featured, setFeatured] = useState(editProduct?.featured || false);
-  const [keywords, setKeywords] = useState(editProduct?.keywords?.length ? editProduct.keywords.join(", ") : "");
   const [saving, setSaving] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
 
@@ -196,10 +195,6 @@ function ProductForm({ categories: cats, onProductAdded, editProduct, onEditDone
       description,
       details: details.filter(Boolean),
       featured,
-      keywords: keywords
-        .split(",")
-        .map((k) => k.trim())
-        .filter(Boolean),
     };
 
     try {
@@ -221,7 +216,6 @@ function ProductForm({ categories: cats, onProductAdded, editProduct, onEditDone
         setDescription("");
         setImages([]);
         setDetails([""]);
-        setKeywords("");
         setShowPreview(false);
         onProductAdded?.();
         if (isEditing) onEditDone?.();
@@ -329,18 +323,6 @@ function ProductForm({ categories: cats, onProductAdded, editProduct, onEditDone
       </div>
 
       <DetailInput details={details} setDetails={setDetails} />
-
-      <div className="space-y-2">
-        <label className="text-sm font-medium text-text">SEO Keywords</label>
-        <textarea
-          value={keywords}
-          onChange={(e) => setKeywords(e.target.value)}
-          rows={2}
-          placeholder="clay bag charm, custom keychain, handmade gift"
-          className="w-full rounded-xl border border-border bg-surface px-4 py-3 text-sm text-text outline-none focus:border-accent transition-colors resize-none placeholder:text-muted/40"
-        />
-        <p className="text-[10px] text-muted/60">Comma-separated. These help your product show up in Google search.</p>
-      </div>
 
       <label className="flex items-center gap-3 cursor-pointer">
         <div className="relative">
