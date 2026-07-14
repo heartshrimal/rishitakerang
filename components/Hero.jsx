@@ -2,7 +2,7 @@ import CustomizeButton from "./EnquireButton";
 
 export default function Hero() {
   return (
-    <section className="relative flex min-h-[90vh] flex-col justify-center px-5 overflow-hidden">
+    <section className="relative flex min-h-[60vh] pt-20 flex-col justify-center px-5 overflow-hidden">
       {/* <div className="absolute top-16 right-6 text-6xl opacity-75 text-accent select-none font-script leading-none">
         ✦
       </div>
