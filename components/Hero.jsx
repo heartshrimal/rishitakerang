@@ -2,15 +2,11 @@
 export default function Hero() {
   return (
     <section className="relative flex min-h-[60vh] pt-20 flex-col justify-center px-5 overflow-hidden">
-      {/* <div className="absolute top-16 right-6 text-6xl opacity-75 text-accent select-none font-script leading-none">
-        ✦
-      </div>
-      <div className="absolute bottom-36 left-4 text-5xl opacity-75 text-secondary select-none font-script leading-none">
-        ❀
-      </div> */}
-      {/* <div className="absolute top-1/3 left-1/2 -translate-x-1/2 text-7xl opacity-[0.04] text-primry select-none font-script leading-none pointer-events-none">
-        Rishita Ke Rang
-      </div> */}
+      <img
+        src="/post_it_note.png"
+        alt="Post it note"
+        className="absolute top-0 right-4 w-30 rotate-[17deg] pointer-events-none select-none"
+      />
 
       <div className="max-w-lg mx-auto w-full relative">
         <span className="inline-block mb-6 text-[10px] uppercase tracking-[0.35em] text-muted font-medium">

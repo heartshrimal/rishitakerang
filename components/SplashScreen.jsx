@@ -66,20 +66,20 @@ export default function SplashScreen({ onFinish }) {
           x="300"
           y="160"
           textAnchor="middle"
-          fontFamily="'Dancing Script', cursive"
+          fontFamily="'Amsterdam One', cursive"
           fontSize="52"
           fill="#2c2420"
           className="select-none"
           opacity="0.15"
         >
-          Rishita Ke Rang
+          rishita ke rang
         </text>
 
         <text
           x="300"
           y="160"
           textAnchor="middle"
-          fontFamily="'Dancing Script', cursive"
+          fontFamily="'Amsterdam One', cursive"
           fontSize="52"
           fill="#2c2420"
           className="select-none"
@@ -88,7 +88,7 @@ export default function SplashScreen({ onFinish }) {
             WebkitClipPath: `inset(0 ${100 - clipPct}% 0 0)`,
           }}
         >
-          Rishita Ke Rang
+          rishita ke rang
         </text>
 
         <path

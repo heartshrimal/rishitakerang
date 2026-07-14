@@ -20,8 +20,8 @@ export default function Navbar() {
     <>
       <nav className="sticky top-[-2px] z-50 bg-text backdrop-blur-lg">
         <div className="mx-auto flex h-16 items-center justify-between px-5 max-w-lg">
-          <Link href="/" className="font-script text-2xl tracking-wide text-white">
-            Rishita Ke Rang
+          <Link href="/" className="text-2xl tracking-wide text-white" style={{ fontFamily: "'Amsterdam One', cursive" }}>
+            rishita ke rang
           </Link>
           <div className="flex items-center gap-2">
             <Link
