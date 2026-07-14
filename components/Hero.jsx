@@ -5,7 +5,7 @@ export default function Hero() {
       <img
         src="/post_it_note_2.png"
         alt="Post it note"
-        className="absolute top-0 right-4 w-30 rotate-[15deg] pointer-events-none select-none"
+        className="absolute -top-5 right-4 w-35 rotate-15 pointer-events-none select-none"
       />
       {/* <img
         src="/1000167906.png"
@@ -20,7 +20,7 @@ export default function Hero() {
       <img
         src="/1000167914.png"
         alt="Post it note"
-        className="absolute top-60 right-0 w-30 rotate-15 pointer-events-none select-none"
+        className="absolute top-80 right-0 w-30 rotate-15 pointer-events-none select-none"
       />
       <img
         src="/1000167915.png"
@@ -36,6 +36,16 @@ export default function Hero() {
         src="/frames.png"
         alt="Post it note"
         className="absolute -bottom-5 right-10 w-30 rotate-[-30deg] pointer-events-none select-none"
+      />
+      <img
+        src="/diet-coke-earrings.png"
+        alt="Post it note"
+        className="absolute -bottom-35 right-40 w-30 pointer-events-none select-none"
+      />
+      <img
+        src="/heart-earrings.png"
+        alt="Post it note"
+        className="absolute top-35 right-0 w-30 -rotate-12 pointer-events-none select-none"
       />
 
       <div className="max-w-lg mx-auto w-full relative">
