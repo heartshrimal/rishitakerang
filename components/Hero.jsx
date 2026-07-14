@@ -1,4 +1,3 @@
-import CustomizeButton from "./EnquireButton";
 
 export default function Hero() {
   return (
@@ -15,25 +14,22 @@ export default function Hero() {
 
       <div className="max-w-lg mx-auto w-full relative">
         <span className="inline-block mb-6 text-[10px] uppercase tracking-[0.35em] text-muted font-medium">
-          Handmade Clay Art
+          Rishita Ke Rang
         </span>
 
-        <h1 className="font-script text-[4rem] md:text-[4.5rem] leading-[1.1] tracking-normal text-text">
-          Crafted
+        <h1 className="font-script text-[3rem] md:text-[4.5rem] leading-[1.1] tracking-normal text-text">
+          A little world
           <br />
-          <span className="text-darkmlue">just for you</span>
+          <span className="text-darkmlue">of handmade things</span>
         </h1>
 
         <div className="w-12 h-[2px] bg-accent/40 mt-6 mb-6" />
 
         <p className="text-base text-muted leading-relaxed max-w-xs">
-          Every piece is handmade, fully customizable, and created with love.
+          A collection of handmade objects, thoughtful gifts and little pieces of art designed to make everyday moments feel a bit more special
         </p>
 
-        <CustomizeButton
-          className="mt-8 w-full rounded-2xl bg-text px-7 py-4 text-background font-medium text-base hover:opacity-90 transition-opacity active:scale-[0.98] block text-center"
-          label="Let's Talk →"
-        />
+        
 
         <div className="mt-10 text-[10px] uppercase tracking-[0.3em] text-muted/40 text-center font-medium">
           ✦ handmade with love ✦

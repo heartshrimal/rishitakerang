@@ -26,16 +26,16 @@ export default function Navbar() {
           <div className="flex items-center gap-2">
             <Link
               href="/shop"
-              className="flex items-center justify-center w-10 h-10 rounded-xl bg-white/15 text-white/80 hover:bg-white/25 transition-colors"
+              className="flex items-center justify-center w-7 h-7 rounded-xl bg-white/15 text-white/80 hover:bg-white/25 transition-colors"
             >
-              <Search size={20} />
+              <Search size={15} />
             </Link>
             <CartIcon />
             <button
               onClick={() => setOpen(true)}
-              className="flex items-center justify-center w-10 h-10 rounded-xl bg-white/15 text-white/80 hover:bg-white/25 transition-colors"
+              className="flex items-center justify-center w-7 h-7 rounded-xl bg-white/15 text-white/80 hover:bg-white/25 transition-colors"
             >
-              <Menu size={22} />
+              <Menu size={18} />
             </button>
           </div>
         </div>
@@ -183,9 +183,9 @@ function CartIcon() {
   return (
     <Link
       href="/cart"
-      className="relative flex items-center justify-center w-10 h-10 rounded-xl bg-white/15 text-white/80 hover:bg-white/25 transition-colors"
+      className="relative flex items-center justify-center w-7 h-7 rounded-xl bg-white/15 text-white/80 hover:bg-white/25 transition-colors"
     >
-      <ShoppingCart size={20} />
+      <ShoppingCart size={15} />
       {totalItems > 0 && (
         <span className="absolute -top-1 -right-1 flex items-center justify-center w-5 h-5 rounded-full bg-accent text-white text-[10px] font-bold leading-none">
           {totalItems > 9 ? "9+" : totalItems}
