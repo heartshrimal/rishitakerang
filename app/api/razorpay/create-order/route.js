@@ -17,6 +17,7 @@ export async function POST(request) {
     }
 
     const isCart = Array.isArray(body.cartItems) && body.cartItems.length > 0;
+    const isCustom = !isCart && body.productName && !body.productId;
 
     let productName, productPrice, productId, products, shipping, total;
 
@@ -30,8 +31,21 @@ export async function POST(request) {
         name: i.name,
         price: Number(i.price),
         quantity: i.quantity,
+        customizations: i.customizations || null,
       }));
       shipping = productPrice > 2000 ? 0 : 100;
+    } else if (isCustom) {
+      productName = body.productName;
+      productPrice = Number(body.productPrice);
+      productId = null;
+      products = [{
+        id: null,
+        name: productName,
+        price: productPrice,
+        quantity: 1,
+        customizations: body.customizations || null,
+      }];
+      shipping = productPrice >= 2000 ? 0 : 100;
     } else {
       const { productId: pid, productName: pName, productPrice: pPrice } = body;
       productId = pid ? Number(pid) : null;

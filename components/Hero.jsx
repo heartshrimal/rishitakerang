@@ -17,11 +17,11 @@ export default function Hero() {
         alt="Post it note"
         className="absolute -top-20 -left-2 w-40 rotate-[-25deg] pointer-events-none select-none"
       />
-      <img
+      {/* <img
         src="/1000167914.png"
         alt="Post it note"
         className="absolute top-80 right-0 w-30 rotate-15 pointer-events-none select-none"
-      />
+      /> */}
       <img
         src="/1000167915.png"
         alt="Post it note"
@@ -42,11 +42,11 @@ export default function Hero() {
         alt="Post it note"
         className="absolute -bottom-35 right-40 w-30 pointer-events-none select-none"
       />
-      <img
+      {/* <img
         src="/heart-earrings.png"
         alt="Post it note"
         className="absolute top-35 right-0 w-30 -rotate-12 pointer-events-none select-none"
-      />
+      /> */}
 
       <div className="max-w-lg mx-auto w-full relative">
         <span className="inline-block mb-6 text-[10px] uppercase tracking-[0.35em] text-muted font-medium">

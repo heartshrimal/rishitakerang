@@ -71,12 +71,23 @@ export default function CartPage() {
                   </div>
                 )}
                 <div className="flex-1 min-w-0">
-                  <Link
-                    href={`/product/${item.id}`}
-                    className="font-display text-base text-text hover:text-accent transition-colors line-clamp-1"
-                  >
-                    {item.name}
-                  </Link>
+                  {item.customizations ? (
+                    <p className="font-display text-base text-text line-clamp-1">
+                      {item.name}
+                    </p>
+                  ) : (
+                    <Link
+                      href={`/product/${item.id}`}
+                      className="font-display text-base text-text hover:text-accent transition-colors line-clamp-1"
+                    >
+                      {item.name}
+                    </Link>
+                  )}
+                  {item.customizations?.elements && (
+                    <p className="text-[11px] text-muted mt-0.5 line-clamp-1">
+                      {item.customizations.elements.map((e) => e.name).join(" · ")}
+                    </p>
+                  )}
                   <p className="text-sm font-semibold text-text mt-1">
                     ₹{item.price}
                   </p>

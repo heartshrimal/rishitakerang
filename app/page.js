@@ -39,10 +39,18 @@ export default async function Home() {
       <Hero />
       <Categories categories={categories} />
       <FeaturedProducts products={products} />
-      <CustomizeButton
-          className="mt-8 w-11/12 mx-auto my-auto rounded-2xl bg-text px-7 py-4 text-background font-medium text-base hover:opacity-90 transition-opacity active:scale-[0.98] block text-center"
+      <section className="px-5 pt-10 pb-16 text-center space-y-4">
+        <p className="font-script text-3xl text-text leading-snug">
+          Have something different in mind?
+        </p>
+        <p className="text-sm text-muted max-w-xs mx-auto">
+          Tell us your idea and we&apos;ll make it happen
+        </p>
+        <CustomizeButton
+          className="mt-2 inline-block rounded-2xl bg-text px-10 py-4 text-background font-medium text-sm hover:opacity-90 transition-opacity active:scale-[0.98]"
           label="Let's Talk →"
         />
+      </section>
     </>
   );
 }

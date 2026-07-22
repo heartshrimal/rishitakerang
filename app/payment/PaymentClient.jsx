@@ -21,9 +21,23 @@ function loadRazorpayScript() {
 
 const SHIPPING = 100;
 
-export default function PaymentClient({ product, isCart }) {
+export default function PaymentClient({ product, isCart, isCustom }) {
   const router = useRouter();
   const { items: cartItems, subtotal: cartSubtotal, clearCart } = useCart();
+  const [customProduct, setCustomProduct] = useState(null);
+
+  useEffect(() => {
+    if (isCustom) {
+      try {
+        const stored = sessionStorage.getItem("charm_build");
+        if (stored) {
+          setCustomProduct(JSON.parse(stored));
+        }
+      } catch {}
+    }
+  }, [isCustom]);
+
+  const activeProduct = isCustom ? customProduct : product;
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
@@ -35,12 +49,12 @@ export default function PaymentClient({ product, isCart }) {
   const [error, setError] = useState("");
   const [razorpayReady, setRazorpayReady] = useState(false);
 
-  const singleShipping = product?.name === "Test Product" || Number(product?.price) <= 1 ? 0 : SHIPPING;
+  const singleShipping = activeProduct?.name === "Test Product" || Number(activeProduct?.price) <= 1 ? 0 : SHIPPING;
   const cartShipping = cartItems.length === 0 ? 0 : cartSubtotal > 2000 ? 0 : SHIPPING;
   const freeShipping = isCart && cartItems.length > 0 && cartSubtotal > 2000;
 
   const shipping = isCart ? cartShipping : singleShipping;
-  const subtotal = isCart ? cartSubtotal : Number(product?.price || 0);
+  const subtotal = isCart ? cartSubtotal : Number(activeProduct?.price || 0);
   const total = subtotal + shipping;
 
   useEffect(() => {
@@ -63,7 +77,18 @@ export default function PaymentClient({ product, isCart }) {
               name: i.name,
               price: i.price,
               quantity: i.quantity,
+              customizations: i.customizations || null,
             })),
+            name: name.trim(),
+            phone: phone.trim(),
+            email: email.trim(),
+            address: `${address.trim()}, ${city.trim()}, ${state.trim()} - ${pincode.trim()}`,
+          }
+        : isCustom && customProduct
+        ? {
+            productName: customProduct.name,
+            productPrice: customProduct.price,
+            customizations: customProduct.customizations || null,
             name: name.trim(),
             phone: phone.trim(),
             email: email.trim(),
@@ -99,7 +124,7 @@ export default function PaymentClient({ product, isCart }) {
         amount: data.amount,
         currency: "INR",
         name: "Rishita Ke Rang",
-        description: isCart ? `Cart (${cartItems.length} items)` : product.name,
+        description: isCart ? `Cart (${cartItems.length} items)` : activeProduct?.name || "Custom Charm",
         image: "/favicon.ico",
         order_id: data.razorpayOrderId,
         prefill: {
@@ -122,6 +147,7 @@ export default function PaymentClient({ product, isCart }) {
 
           if (verifyRes.ok) {
             if (isCart) clearCart();
+            if (isCustom) sessionStorage.removeItem("charm_build");
             router.push(`/order/${data.id}`);
           } else {
             setError("Payment verification failed. Contact support.");
@@ -152,10 +178,10 @@ export default function PaymentClient({ product, isCart }) {
       <header className="px-5 pt-6 pb-4">
         <div className="max-w-lg mx-auto">
           <Link
-            href={isCart ? "/cart" : `/product/${product.id}`}
+            href={isCart ? "/cart" : isCustom ? "/build-charm" : `/product/${product.id}`}
             className="inline-block text-xs text-muted hover:text-text transition-colors mb-5 uppercase tracking-wider"
           >
-            ← Back to {isCart ? "cart" : "product"}
+            ← Back to {isCart ? "cart" : isCustom ? "charm builder" : "product"}
           </Link>
         </div>
       </header>
@@ -199,13 +225,13 @@ export default function PaymentClient({ product, isCart }) {
                 </div>
               ))}
             </div>
-          ) : product ? (
+          ) : activeProduct ? (
             <>
-              {product.image && (
+              {activeProduct.image && (
                 <div className="w-32 h-32 mx-auto rounded-2xl overflow-hidden bg-soft border border-border">
                   <img
-                    src={product.image}
-                    alt={product.name}
+                    src={activeProduct.image}
+                    alt={activeProduct.name}
                     className="w-full h-full object-cover"
                   />
                 </div>
@@ -213,15 +239,29 @@ export default function PaymentClient({ product, isCart }) {
 
               <div className="text-center">
                 <p className="text-sm text-muted uppercase tracking-wider">
-                  {product.category}
+                  {isCustom ? "Custom Charm" : activeProduct.category}
                 </p>
                 <p className="font-display text-xl text-text mt-1">
-                  {product.name}
+                  {activeProduct.name}
                 </p>
                 <p className="text-2xl font-semibold text-text mt-2">
-                  ₹{product.price}
+                  ₹{activeProduct.price}
                 </p>
               </div>
+
+              {isCustom && customProduct?.customizations?.elements && (
+                <div className="rounded-2xl bg-soft border border-border p-4 space-y-2">
+                  <p className="text-xs font-semibold text-text uppercase tracking-wider text-center">
+                    Your Elements
+                  </p>
+                  {customProduct.customizations.elements.map((el, i) => (
+                    <div key={i} className="flex items-center justify-between text-sm text-muted">
+                      <span>{el.name}</span>
+                      <span>₹{el.price}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
             </>
           ) : null}
 

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Menu, X, Plus, List, CreditCard, ShoppingBag, FolderTree, Image, Key } from "lucide-react";
+import { Menu, X, Plus, List, CreditCard, ShoppingBag, FolderTree, Image, Key, Sparkles } from "lucide-react";
 
 function ImageUploader({ images, setImages }) {
   const [uploading, setUploading] = useState(false);
@@ -934,6 +934,384 @@ function BannerEditor() {
   );
 }
 
+function CharmCategories() {
+  const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [name, setName] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(null);
+
+  function load() {
+    setLoading(true);
+    fetch("/api/charm-categories")
+      .then((r) => r.json())
+      .then((data) => {
+        if (Array.isArray(data)) setCategories(data);
+      })
+      .finally(() => setLoading(false));
+  }
+
+  useEffect(load, []);
+
+  function token() {
+    return localStorage.getItem("admin_token");
+  }
+
+  async function handleAdd(e) {
+    e.preventDefault();
+    if (!name.trim()) return;
+    setSaving(true);
+    try {
+      const res = await fetch("/api/charm-categories", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token()}` },
+        body: JSON.stringify({ name: name.trim() }),
+      });
+      if (res.ok) {
+        setName("");
+        load();
+      }
+    } catch {} finally {
+      setSaving(false);
+    }
+  }
+
+  async function handleDelete(id) {
+    if (!confirm("Delete this category?")) return;
+    setDeleting(id);
+    try {
+      const res = await fetch("/api/charm-categories", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token()}` },
+        body: JSON.stringify({ action: "delete", id }),
+      });
+      if (res.ok) {
+        setCategories((prev) => prev.filter((c) => c.id !== id));
+      }
+    } catch {} finally {
+      setDeleting(null);
+    }
+  }
+
+  if (loading) {
+    return <p className="text-sm text-muted text-center py-8">Loading...</p>;
+  }
+
+  return (
+    <div className="space-y-5">
+      <p className="text-sm text-muted">
+        Manage categories for the charm builder filter.
+      </p>
+
+      {categories.length === 0 && (
+        <p className="text-sm text-muted text-center py-4">
+          No categories yet.
+        </p>
+      )}
+
+      {categories.map((cat) => (
+        <div
+          key={cat.id}
+          className="flex items-center gap-3 rounded-2xl bg-surface border border-border p-4"
+        >
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-medium text-text">{cat.name}</p>
+          </div>
+          <button
+            onClick={() => handleDelete(cat.id)}
+            disabled={deleting === cat.id}
+            className="w-9 h-9 rounded-xl border border-border flex items-center justify-center text-muted hover:text-red-500 hover:border-red-200 transition-colors shrink-0 disabled:opacity-50"
+          >
+            {deleting === cat.id ? "..." : "×"}
+          </button>
+        </div>
+      ))}
+
+      <form onSubmit={handleAdd} className="flex gap-2">
+        <input
+          type="text"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          placeholder="New category name"
+          className="flex-1 rounded-xl border border-border bg-surface px-4 py-3 text-sm text-text outline-none focus:border-accent transition-colors"
+          required
+        />
+        <button
+          type="submit"
+          disabled={saving}
+          className="shrink-0 rounded-2xl bg-text px-5 py-3 text-background font-medium text-sm hover:opacity-90 transition-opacity disabled:opacity-50"
+        >
+          {saving ? "..." : "Add"}
+        </button>
+      </form>
+    </div>
+  );
+}
+
+function CharmElements() {
+  const [elements, setElements] = useState([]);
+  const [charmCategories, setCharmCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [showForm, setShowForm] = useState(false);
+  const [editing, setEditing] = useState(null);
+  const [name, setName] = useState("");
+  const [category, setCategory] = useState("");
+  const [price, setPrice] = useState("");
+  const [image, setImage] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(null);
+
+  function load() {
+    setLoading(true);
+    Promise.all([
+      fetch("/api/charm-elements").then((r) => r.json()),
+      fetch("/api/charm-categories").then((r) => r.json()),
+    ]).then(([elementsData, categoriesData]) => {
+      if (Array.isArray(elementsData)) setElements(elementsData);
+      if (Array.isArray(categoriesData)) setCharmCategories(categoriesData);
+    }).finally(() => setLoading(false));
+  }
+
+  useEffect(load, []);
+
+  function token() {
+    return localStorage.getItem("admin_token");
+  }
+
+  function resetForm() {
+    setName("");
+    setCategory("");
+    setPrice("");
+    setImage("");
+    setEditing(null);
+    setShowForm(false);
+  }
+
+  function startEdit(el) {
+    setName(el.name);
+    setCategory(el.category);
+    setPrice(el.price);
+    setImage(el.image || "");
+    setEditing(el);
+    setShowForm(true);
+  }
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+    setSaving(true);
+
+    const payload = {
+      name,
+      category,
+      price: Number(price),
+      image: image || null,
+    };
+
+    try {
+      const url = editing ? `/api/charm-elements/${editing.id}` : "/api/charm-elements";
+      const method = editing ? "PUT" : "POST";
+      const res = await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token()}` },
+        body: JSON.stringify(payload),
+      });
+
+      if (res.ok) {
+        resetForm();
+        load();
+      }
+    } catch {
+      // ignore
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function handleDelete(id) {
+    if (!confirm("Delete this element?")) return;
+    setDeleting(id);
+    try {
+      const res = await fetch(`/api/charm-elements/${id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token()}` },
+      });
+      if (res.ok) {
+        setElements((prev) => prev.filter((e) => e.id !== id));
+      }
+    } catch {
+      // ignore
+    } finally {
+      setDeleting(null);
+    }
+  }
+
+  async function handleImageUpload(e) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const formData = new FormData();
+    formData.append("file", file);
+    try {
+      const res = await fetch("/api/images/upload", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token()}` },
+        body: formData,
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setImage(data.url);
+      }
+    } catch {}
+  }
+
+  if (showForm) {
+    return (
+      <form onSubmit={handleSubmit} className="space-y-5">
+        <div className="flex items-center justify-between">
+          <h3 className="font-display text-lg text-text">
+            {editing ? "Edit Element" : "Add Element"}
+          </h3>
+          <button
+            type="button"
+            onClick={resetForm}
+            className="text-sm text-muted hover:text-text transition-colors"
+          >
+            Cancel
+          </button>
+        </div>
+
+        <div className="space-y-2">
+          <label className="text-sm font-medium text-text">Name</label>
+          <input
+            type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="e.g. Clay Ball, Coke Can, Heart"
+            className="w-full rounded-xl border border-border bg-surface px-4 py-3 text-sm text-text outline-none focus:border-accent transition-colors"
+            required
+          />
+        </div>
+
+        <div className="space-y-2">
+          <label className="text-sm font-medium text-text">Category</label>
+          <select
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+            className="w-full max-w-full rounded-xl border border-border bg-surface px-4 py-3 text-sm text-text outline-none focus:border-accent transition-colors"
+            style={{ minWidth: 0 }}
+            required
+          >
+            <option value="" disabled>Select a category</option>
+            {charmCategories.map((cat) => (
+              <option key={cat.id} value={cat.name}>
+                {cat.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="space-y-2">
+          <label className="text-sm font-medium text-text">Price (₹)</label>
+          <input
+            type="number"
+            value={price}
+            onChange={(e) => setPrice(e.target.value)}
+            className="w-full rounded-xl border border-border bg-surface px-4 py-3 text-sm text-text outline-none focus:border-accent transition-colors"
+            required
+            min="0"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <label className="text-sm font-medium text-text">Image</label>
+          <div className="flex items-center gap-3">
+            {image && (
+              <div className="relative w-16 h-16 rounded-xl overflow-hidden bg-soft border border-border">
+                <img src={image} alt="" className="w-full h-full object-cover" />
+                <button
+                  type="button"
+                  onClick={() => setImage("")}
+                  className="absolute top-0.5 right-0.5 w-4 h-4 rounded-full bg-red-500 text-white text-[10px] flex items-center justify-center"
+                >
+                  ×
+                </button>
+              </div>
+            )}
+            <label className="w-16 h-16 rounded-xl border-2 border-dashed border-border flex items-center justify-center cursor-pointer hover:border-accent transition-colors text-muted text-xl">
+              <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
+              +
+            </label>
+          </div>
+        </div>
+
+        <button
+          type="submit"
+          disabled={saving}
+          className="w-full rounded-2xl bg-text py-3.5 text-background font-medium text-sm hover:opacity-90 transition-opacity disabled:opacity-50"
+        >
+          {saving ? "Saving..." : editing ? "Update Element" : "Add Element"}
+        </button>
+      </form>
+    );
+  }
+
+  if (loading) {
+    return <p className="text-sm text-muted text-center py-8">Loading...</p>;
+  }
+
+  return (
+    <div className="space-y-4">
+      {elements.length === 0 && (
+        <p className="text-sm text-muted text-center py-8">
+          No elements yet. Add your first one!
+        </p>
+      )}
+
+      {elements.map((el) => (
+        <div
+          key={el.id}
+          className="flex items-center gap-3 rounded-2xl bg-surface border border-border p-4"
+        >
+          <div className="w-14 h-14 rounded-xl bg-soft shrink-0 flex items-center justify-center overflow-hidden">
+            {el.image ? (
+              <img src={el.image} alt="" className="w-full h-full object-cover p-1" />
+            ) : (
+              <span className="text-xl text-muted/40">✦</span>
+            )}
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-medium text-text truncate">{el.name}</p>
+            <p className="text-xs text-muted">
+              {el.category} · ₹{el.price}
+            </p>
+          </div>
+          <button
+            onClick={() => startEdit(el)}
+            className="w-9 h-9 rounded-xl border border-border flex items-center justify-center text-muted hover:text-accent hover:border-accent/30 transition-colors shrink-0"
+            title="Edit"
+          >
+            ✎
+          </button>
+          <button
+            onClick={() => handleDelete(el.id)}
+            disabled={deleting === el.id}
+            className="w-9 h-9 rounded-xl border border-border flex items-center justify-center text-muted hover:text-red-500 hover:border-red-200 transition-colors shrink-0 disabled:opacity-50"
+          >
+            {deleting === el.id ? "..." : "×"}
+          </button>
+        </div>
+      ))}
+
+      <button
+        type="button"
+        onClick={() => setShowForm(true)}
+        className="w-full rounded-2xl border-2 border-dashed border-border py-3.5 text-sm font-medium text-muted hover:text-accent hover:border-accent/30 transition-colors"
+      >
+        + Add Element
+      </button>
+    </div>
+  );
+}
+
 export default function AdminDashboard() {
   const [authed, setAuthed] = useState(false);
   const [checking, setChecking] = useState(true);
@@ -1066,6 +1444,8 @@ export default function AdminDashboard() {
             {[
               { id: "product", label: editingProduct ? "Edit Product" : "Add Product", icon: Plus },
               { id: "manage", label: "Manage Products", icon: List },
+              { id: "charm-elements", label: "Charm Elements", icon: Sparkles },
+              { id: "charm-categories", label: "Charm Categories", icon: FolderTree },
               { id: "payments", label: "Payments", icon: CreditCard },
               { id: "orders", label: "Orders", icon: ShoppingBag },
               { id: "category", label: "Categories", icon: FolderTree },
@@ -1133,6 +1513,10 @@ export default function AdminDashboard() {
         {tab === "payments" && <PaymentsView />}
 
         {tab === "orders" && <OrdersView />}
+
+        {tab === "charm-elements" && <CharmElements />}
+
+        {tab === "charm-categories" && <CharmCategories />}
 
         {tab === "category" && (
           <CategoryForm

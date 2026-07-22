@@ -9,10 +9,14 @@ export const metadata = {
 };
 
 export default async function PaymentPage({ searchParams }) {
-  const { id, name, price, cart } = await searchParams;
+  const { id, name, price, cart, custom } = await searchParams;
 
   if (cart === "true") {
     return <PaymentClient isCart />;
+  }
+
+  if (custom === "true") {
+    return <PaymentClient isCustom />;
   }
 
   let product;

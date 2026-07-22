@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Menu, X, Home, User, Mail, CreditCard, Search, ShoppingCart } from "lucide-react";
+import { Menu, X, Home, User, Mail, CreditCard, Search, ShoppingCart, Sparkles } from "lucide-react";
 import { categories } from "@/data/products";
 import { useCart } from "@/lib/CartContext";
 
@@ -18,7 +18,7 @@ export default function Navbar() {
 
   return (
     <>
-      <nav className="sticky top-[-2px] z-50 bg-text backdrop-blur-lg">
+      <nav className="sticky -top-0.5 z-50 bg-text backdrop-blur-lg">
         <div className="mx-auto flex h-16 items-center justify-between px-5 max-w-lg">
           <Link href="/" className="text-2xl tracking-wide text-white" style={{ fontFamily: "'Amsterdam One', cursive" }}>
             rishita ke rang
@@ -92,6 +92,17 @@ export default function Navbar() {
                 <Search size={16} />
               </span>
               Shop All
+            </Link>
+
+            <Link
+              href="/build-charm"
+              onClick={() => setOpen(false)}
+              className="flex items-center gap-3 w-full rounded-2xl px-4 py-3.5 text-sm font-medium text-text hover:bg-soft transition-colors"
+            >
+              <span className="flex items-center justify-center w-8 h-8 rounded-xl bg-accent/10 text-accent">
+                <Sparkles size={16} />
+              </span>
+              Build Your Charm
             </Link>
 
             <Link

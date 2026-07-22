@@ -22,8 +22,23 @@ export function CartProvider({ children }) {
     }
   }, [items, loaded]);
 
-  const addItem = useCallback((product, quantity = 1) => {
+  const addItem = useCallback((product, quantity = 1, customizations = null) => {
     setItems((prev) => {
+      if (customizations) {
+        return [
+          ...prev,
+          {
+            id: "custom-" + Date.now() + "-" + Math.random().toString(36).slice(2, 6),
+            name: product.name,
+            price: Number(product.price),
+            image: product.image || null,
+            slug: "custom-charm",
+            quantity: quantity,
+            customizations,
+          },
+        ];
+      }
+
       const existing = prev.find((item) => String(item.id) === String(product.id));
       if (existing) {
         return prev.map((item) =>
